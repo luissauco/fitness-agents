@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+build/
+dist/
+.eggs/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+ENV/
+
+# uv (uv.lock SÍ se commitea para builds reproducibles)
+.python-version
+
+# Variables de entorno
+.env
+.env.local
+.env.*.local
+
+# IDEs y herramientas locales
+.vscode/
+.idea/
+*.swp
+*.swo
+.claude/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Testing y cobertura
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+
+# Ruff
+.ruff_cache/
+
+# ChromaDB y datos generados
+src/knowledge/data/chroma_db/
+*.sqlite3
+
+# Cachés de embeddings
+.embeddings_cache/
+
+# Salidas generadas
+output/*.xlsx
+output/*.pdf
+
+# Listas de vídeos generadas por `list-profile`
+*_videos.txt
+videos.txt
+
+# Modelos descargados (Whisper, sentence-transformers)
+# Nota: solo ignoramos `models/` en la raíz, no `src/models/` (paquete del proyecto).
+/models/
+.cache/
+
+# Logs
+*.log
+logs/
+
+# Jupyter
+.ipynb_checkpoints/
