@@ -4,7 +4,8 @@
 Sistema multi-agente Python que actúa como nutricionista y entrenador personal.
 Realiza seguimiento bisemanal, genera mesociclos de entrenamiento en Excel
 (divididos en microciclos semanales) y planes nutricionales en PDF.
-Base de conocimiento RAG con contenido de Fran Pérez Jurado y estudios científicos.
+Base de conocimiento RAG con contenido de **divulgadores de referencia** en
+entrenamiento y nutrición basada en evidencia, complementado con estudios científicos.
 
 ## Stack
 - Python 3.12+, uv como gestor de paquetes

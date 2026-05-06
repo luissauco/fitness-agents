@@ -8,7 +8,7 @@ Por qué `sentence-transformers` (local) en lugar de Voyage AI / Anthropic:
    y Voyage requiere una clave separada que sería otra cosa que rotar.
 3. **Sin latencia de red**: cada query del retriever sería un round-trip extra a
    un servicio externo. Local = milisegundos.
-4. **Privacidad**: el contenido de Fran Pérez Jurado y de los planes del usuario
+4. **Privacidad**: el contenido de los divulgadores y los planes del usuario
    no sale de la máquina.
 5. **Calidad suficiente**: los modelos `e5` multilingües (Microsoft, MIT) están
    en lo más alto de MTEB/MIRACL para español y rinden de sobra para este caso.
