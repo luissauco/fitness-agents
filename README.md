@@ -6,7 +6,7 @@ Sistema multi-agente de nutrición y entrenamiento personal basado en LangGraph 
 
 Cinco agentes especializados (intake, evaluación corporal, entrenamiento, nutrición y progreso)
 coordinados por un orquestador LangGraph. Todos consultan una base de conocimiento RAG
-construida sobre el contenido de Fran Pérez Jurado (@franperezjurado) y estudios científicos
+construida sobre el contenido de Youtubers de referencia y estudios científicos
 de referencia en hipertrofia y nutrición deportiva.
 
 Salidas:
