@@ -4,6 +4,7 @@ Todos los cambios relevantes del proyecto se documentaran aqui.
 
 ## Unreleased
 
+- Documentacion bilingue con README, demo, roadmap y contributing en ingles/espanol.
 - Mejora del README orientada a usuarios nuevos.
 - Guia de contribucion, roadmap publico y demo CLI.
 - Templates de issues y pull requests.

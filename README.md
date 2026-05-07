@@ -1,5 +1,7 @@
 # fitness-agents
 
+[English](README.en.md) | Espanol
+
 [![CI](https://github.com/luissauco/fitness-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/luissauco/fitness-agents/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.12%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -58,7 +60,7 @@ print(len(questionnaire.all_questions()))
 print(questionnaire.required_question_ids()[:5])
 ```
 
-Hay una guia mas completa en [docs/DEMO.md](docs/DEMO.md).
+Hay una guia mas completa en [docs/DEMO.md](docs/DEMO.md). English version: [docs/DEMO.en.md](docs/DEMO.en.md).
 
 ## Casos De Uso
 
@@ -138,7 +140,7 @@ La suite cubre chunking, indexacion, recuperacion, sincronizacion del registry, 
 
 ## Roadmap
 
-El plan publico esta en [ROADMAP.md](ROADMAP.md). Las contribuciones mas utiles ahora mismo son:
+El plan publico esta en [ROADMAP.md](ROADMAP.md). English version: [ROADMAP.en.md](ROADMAP.en.md). Las contribuciones mas utiles ahora mismo son:
 
 - Mejorar ejemplos de uso.
 - Anadir fuentes cientificas con metadata limpia.
@@ -148,7 +150,7 @@ El plan publico esta en [ROADMAP.md](ROADMAP.md). Las contribuciones mas utiles 
 
 ## Contribuir
 
-Lee [CONTRIBUTING.md](CONTRIBUTING.md) para configurar el entorno, ejecutar checks y proponer cambios. Las issues pequenas con etiqueta `good first issue` son especialmente bienvenidas.
+Lee [CONTRIBUTING.md](CONTRIBUTING.md) para configurar el entorno, ejecutar checks y proponer cambios. English version: [CONTRIBUTING.en.md](CONTRIBUTING.en.md). Las issues pequenas con etiqueta `good first issue` son especialmente bienvenidas.
 
 ## Topics Sugeridos En GitHub
 

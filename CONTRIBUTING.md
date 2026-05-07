@@ -1,5 +1,7 @@
 # Contribuir
 
+[English](CONTRIBUTING.en.md) | Espanol
+
 Gracias por querer mejorar `fitness-agents`. El proyecto esta en una fase temprana, asi que las contribuciones mas valiosas son las que hacen el sistema mas facil de probar, validar o ampliar.
 
 ## Setup Local

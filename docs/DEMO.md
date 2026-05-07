@@ -1,5 +1,7 @@
 # Demo
 
+[English](DEMO.en.md) | Espanol
+
 Esta demo muestra el flujo minimo para entender `fitness-agents`: preparar el entorno, listar fuentes, indexarlas y hacer una busqueda semantica.
 
 ## 1. Preparar El Entorno

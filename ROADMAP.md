@@ -1,5 +1,7 @@
 # Roadmap
 
+[English](ROADMAP.en.md) | Espanol
+
 Este roadmap mantiene visible hacia donde va `fitness-agents` y que partes estan listas para recibir contribuciones.
 
 ## v0.1 - Base Del Dominio
