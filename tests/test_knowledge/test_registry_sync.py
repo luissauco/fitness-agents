@@ -14,7 +14,6 @@ from src.knowledge.registry_sync import (
 )
 from src.knowledge.sources import KnowledgeRegistry, Reliability, SourceType
 
-
 # --------------------------------------------------------------- Fixtures
 
 

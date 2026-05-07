@@ -27,7 +27,7 @@ from rich.table import Table
 load_dotenv()
 
 from src.config.settings import get_settings
-from src.knowledge.retriever import AgentType, KnowledgeRetriever, RetrievedChunk
+from src.knowledge.retriever import KnowledgeRetriever, RetrievedChunk
 from src.knowledge.sources import (
     KnowledgeRegistry,
     KnowledgeSource,
@@ -310,10 +310,15 @@ def list_profile_cmd(
     # Archivo editable
     output.parent.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+    listed_urls = {
+        e.get("url") or e.get("webpage_url") or ""
+        for e in entries
+    }
+    existing_count = len(existing_urls & listed_urls)
     lines: list[str] = [
         f"# fitness-kb — vídeos de {profile_url}",
         f"# Generado: {timestamp}",
-        f"# Total: {len(entries)} vídeos ({len(existing_urls & {e.get('url') or e.get('webpage_url') or '' for e in entries})} ya en registry)",
+        f"# Total: {len(entries)} vídeos ({existing_count} ya en registry)",
         "#",
         "# Edita esta lista: borra (o comenta con #) las líneas de los vídeos",
         "# que NO quieras ingerir. Después:",

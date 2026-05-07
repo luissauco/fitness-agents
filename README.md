@@ -1,74 +1,159 @@
 # fitness-agents
 
-Sistema multi-agente de nutrición y entrenamiento personal basado en LangGraph y Claude.
+[![CI](https://github.com/luissauco/fitness-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/luissauco/fitness-agents/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/python-3.12%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![RAG](https://img.shields.io/badge/RAG-ChromaDB-purple)
 
-## Visión general
+Sistema multi-agente para crear planes de entrenamiento y nutricion con RAG, modelos Pydantic y una base de conocimiento fitness en espanol.
 
-Cinco agentes especializados (intake, evaluación corporal, entrenamiento, nutrición y progreso)
-coordinados por un orquestador LangGraph. Todos consultan una base de conocimiento RAG
-construida sobre el contenido de divulgadores de referencia y estudios científicos
-de referencia en hipertrofia y nutrición deportiva.
+El objetivo es convertir evidencia, divulgacion tecnica y datos del usuario en salidas accionables: cuestionarios, evaluaciones, mesociclos, planes nutricionales y seguimiento de progreso.
 
-Salidas:
-- Mesociclos de entrenamiento en Excel (divididos en microciclos semanales).
-- Planes nutricionales en PDF.
-- Seguimiento bisemanal con ajustes basados en progreso.
+## Por Que Existe
+
+La mayoria de herramientas fitness con IA responden de forma generica. `fitness-agents` busca ser mas trazable y estructurado:
+
+- Recupera contexto desde una base de conocimiento local antes de responder.
+- Modela datos de usuario, ejercicios, nutricion, mesociclos y progreso con Pydantic.
+- Valida coherencia entre entrenamiento, nutricion, equipamiento y objetivos.
+- Esta pensado para trabajar en espanol y con contenido de hipertrofia basado en biomecanica, volumen, intensidad, fatiga y seleccion de ejercicios.
+
+## Estado Actual
+
+Ya implementado:
+
+- CLI `fitness-kb` para listar, ingerir, indexar y buscar fuentes.
+- Base RAG con ChromaDB, chunking, embeddings y filtros por topic, autor, fiabilidad y tipo de fuente.
+- Ingesta de videos con `yt-dlp` y transcripcion local.
+- Registry con cientos de transcripciones fitness en espanol.
+- Modelos Pydantic para usuario, cuestionario, evaluacion corporal, ejercicios, mesociclo, nutricion y progreso.
+- Validadores cruzados y suite de tests.
+
+En desarrollo:
+
+- Agentes LangGraph especializados.
+- Generacion final de Excel/PDF.
+- Interfaz de demo para usuarios no tecnicos.
+- Fuentes cientificas adicionales y citas normalizadas.
+
+## Demo Rapida
+
+```bash
+uv sync --extra dev
+cp .env.example .env
+
+uv run fitness-kb list
+uv run fitness-kb index-all
+uv run fitness-kb search "como entrenar pectoral para hipertrofia" --agent training -k 3
+```
+
+Ejemplo de uso desde Python:
+
+```python
+from src.models import Questionnaire
+
+questionnaire = Questionnaire.get_default()
+
+print(len(questionnaire.all_questions()))
+print(questionnaire.required_question_ids()[:5])
+```
+
+Hay una guia mas completa en [docs/DEMO.md](docs/DEMO.md).
+
+## Casos De Uso
+
+- Construir un entrenador personal con agentes de IA.
+- Crear una base de conocimiento fitness consultable por RAG.
+- Generar estructuras validadas para planes de entrenamiento y nutricion.
+- Experimentar con modelos Pydantic para productos fitness.
+- Analizar contenido de divulgadores y convertirlo en fuentes indexables.
 
 ## Stack
 
 - Python 3.12+
-- [uv](https://github.com/astral-sh/uv) como gestor de paquetes
-- LangGraph (orquestación de agentes)
-- ChromaDB (vector store local)
-- Claude API (Anthropic)
-- sentence-transformers (embeddings multilingües)
-- Typer + Rich (CLI)
+- uv
+- ChromaDB
+- sentence-transformers
+- Pydantic v2
+- Typer + Rich
+- yt-dlp
+- faster-whisper
 - pytest + ruff
+- LangGraph y Claude API para la fase de agentes
 
-## Estado actual
-
-Construyendo el módulo RAG (`src/knowledge/`). El resto de módulos son stubs por ahora.
-
-## Setup
+## Instalacion
 
 ```bash
-# Instalar uv si no lo tienes
 curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Crear entorno e instalar dependencias
 uv sync --extra dev
 
-# Variables de entorno
 cp .env.example .env
-# Editar .env y añadir ANTHROPIC_API_KEY
+```
+
+Edita `.env` si vas a usar proveedores externos:
+
+```bash
+ANTHROPIC_API_KEY=...
+```
+
+## CLI
+
+```bash
+uv run fitness-kb list
+uv run fitness-kb stats
+uv run fitness-kb index-all
+uv run fitness-kb index <source_id>
+uv run fitness-kb search "<query>"
+uv run fitness-kb search "<query>" --agent training -k 5
+uv run fitness-kb ingest-video <url> --topics hypertrophy,biomechanics
+uv run fitness-kb list-profile <profile_url> --output videos.txt
+uv run fitness-kb ingest-from-list videos.txt --topics hypertrophy
+uv run fitness-kb sync-registry --dry-run
 ```
 
 ## Estructura
 
-```
-src/
-  knowledge/   ← módulo RAG (foco actual)
-  agents/      ← agentes LangGraph (futuro)
-  models/      ← modelos Pydantic (futuro)
-  generators/  ← generadores xlsx/pdf (futuro)
-  graph/       ← grafo de estados LangGraph (futuro)
-  tools/       ← herramientas de agentes (futuro)
-  db/          ← persistencia SQLite (futuro)
-  config/      ← configuración
-cli/           ← interfaz de terminal
-tests/         ← tests
-output/        ← archivos generados
+```text
+cli/                    Interfaz de terminal fitness-kb
+data/                   Datos estructurados auxiliares
+docs/                   Demos y documentacion de producto
+scripts/                Scripts operativos de ingesta/clasificacion
+src/config/             Configuracion del proyecto
+src/knowledge/          RAG, fuentes, registry, indexacion y recuperacion
+src/models/             Modelos Pydantic del dominio fitness
+src/agents/             Agentes especializados (en desarrollo)
+src/generators/         Exportadores XLSX/PDF (en desarrollo)
+src/graph/              Orquestacion LangGraph (en desarrollo)
+tests/                  Suite de tests
 ```
 
-## Uso del CLI (RAG)
-
-Disponible una vez implementado el módulo:
+## Calidad
 
 ```bash
-fitness-kb index-all              # Indexa todo el registry
-fitness-kb index <source_id>      # Indexa una fuente específica
-fitness-kb search "<query>"       # Búsqueda rápida de prueba
-fitness-kb stats                  # Estadísticas del índice
-fitness-kb ingest-video <url>     # Descarga, transcribe e indexa un vídeo
-fitness-kb list                   # Lista todas las fuentes registradas
+uv run ruff check .
+uv run pytest
 ```
+
+La suite cubre chunking, indexacion, recuperacion, sincronizacion del registry, modelos fitness y validadores.
+
+## Roadmap
+
+El plan publico esta en [ROADMAP.md](ROADMAP.md). Las contribuciones mas utiles ahora mismo son:
+
+- Mejorar ejemplos de uso.
+- Anadir fuentes cientificas con metadata limpia.
+- Crear casos de prueba para agentes.
+- Convertir la salida de modelos en PDFs/Excel usables.
+- Preparar una demo web o notebook reproducible.
+
+## Contribuir
+
+Lee [CONTRIBUTING.md](CONTRIBUTING.md) para configurar el entorno, ejecutar checks y proponer cambios. Las issues pequenas con etiqueta `good first issue` son especialmente bienvenidas.
+
+## Topics Sugeridos En GitHub
+
+`fitness`, `ai-agents`, `rag`, `langchain`, `pydantic`, `nutrition`, `workout-planner`, `personal-trainer`, `spanish`, `knowledge-base`
+
+## Licencia
+
+MIT. Ver [LICENSE](LICENSE).

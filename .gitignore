@@ -53,8 +53,7 @@ src/knowledge/data/chroma_db/
 .embeddings_cache/
 
 # Salidas generadas
-output/*.xlsx
-output/*.pdf
+output/
 
 # Listas de vídeos generadas por `list-profile`
 *_videos.txt

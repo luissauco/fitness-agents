@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from src.config.settings import Settings
 from src.knowledge.chunker import Chunker
 from src.knowledge.sources import (

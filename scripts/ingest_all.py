@@ -33,9 +33,9 @@ def log(msg: str) -> None:
 
 
 def main() -> None:
+    from src.config.settings import get_settings
     from src.knowledge.indexer import KnowledgeIndexer
     from src.knowledge.sources import KnowledgeRegistry, Topic
-    from src.config.settings import get_settings
     from src.knowledge.video_ingest import VideoIngester
 
     settings = get_settings()
@@ -52,7 +52,11 @@ def main() -> None:
             items.append((url, title, classify(title)))
 
     pending = [(u, t, k) for (u, t, k) in items if u not in existing_urls]
-    log(f"Total en lista: {len(items)} | ya en registry: {len(items) - len(pending)} | pendientes: {len(pending)}")
+    log(
+        f"Total en lista: {len(items)} | "
+        f"ya en registry: {len(items) - len(pending)} | "
+        f"pendientes: {len(pending)}"
+    )
 
     indexer = KnowledgeIndexer()
     ingester = VideoIngester(indexer=indexer)
