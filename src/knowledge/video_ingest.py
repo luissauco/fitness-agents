@@ -208,10 +208,11 @@ class VideoIngester:
         import yt_dlp
 
         ydl_opts: dict[str, Any] = {
-            # `best` agarra el stream combinado típico de TikTok (mp4 con
-            # vídeo+audio embebidos). `bestaudio/best` falla porque TikTok
-            # rara vez ofrece un stream de audio por separado.
-            "format": "best",
+            # Preferimos h264 (avc1): los formatos `bytevc1` (HEVC) de TikTok
+            # declaran `acodec=aac` en metadatos pero el archivo descargado
+            # frecuentemente carece de stream de audio. h264 trae siempre
+            # vídeo+audio combinados.
+            "format": "best[vcodec^=avc1]/best[vcodec*=h264]/best",
             "outtmpl": str(dest_dir / "%(id)s.%(ext)s"),
             "quiet": True,
             "no_warnings": True,
