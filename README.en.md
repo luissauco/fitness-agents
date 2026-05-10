@@ -25,16 +25,21 @@ Most AI fitness tools answer in a generic way. `fitness-agents` is designed to b
 Implemented:
 
 - `fitness-kb` CLI for listing, ingesting, indexing, and searching sources.
+- `fitness` CLI with `start`, `checkin`, and `status` commands to interact with the agent system.
 - RAG layer with ChromaDB, chunking, embeddings, and filters by topic, author, reliability, and source type.
 - Video ingestion with `yt-dlp` and local transcription.
 - Registry with hundreds of Spanish fitness transcripts.
-- Pydantic models for users, questionnaires, body assessment, exercises, mesocycles, nutrition, and progress.
-- Cross-model validators and tests.
+- Pydantic models for users, questionnaires, body assessment, exercises, mesocycles, nutrition, progress, intake sessions, and check-ins.
+- Specialized agents: intake, body assessment, training, nutrition, and progress.
+- Async `ClaudeClient` with structured outputs, configurable retries, and timeout.
+- LangGraph orchestrator with SQLite checkpoints and per-session shared state.
+- SQLite persistence with repositories for users and sessions.
+- Per-agent prompts with RAG context.
+- Test suite covering agents, database, and graph.
 
 In progress:
 
-- Specialized LangGraph agents.
-- Final Excel/PDF generation.
+- Excel mesocycle and PDF nutrition plan generation.
 - A non-technical user demo.
 - Additional scientific sources with normalized citations.
 
@@ -44,20 +49,15 @@ In progress:
 uv sync --extra dev
 cp .env.example .env
 
+# Knowledge base
 uv run fitness-kb list
 uv run fitness-kb index-all
 uv run fitness-kb search "how should I train chest for hypertrophy" --agent training -k 3
-```
 
-Python example:
-
-```python
-from src.models import Questionnaire
-
-questionnaire = Questionnaire.get_default()
-
-print(len(questionnaire.all_questions()))
-print(questionnaire.required_question_ids()[:5])
+# Agent system
+uv run fitness start --user-id user1
+uv run fitness checkin --user-id user1
+uv run fitness status --user-id user1
 ```
 
 Read the full demo in [docs/DEMO.en.md](docs/DEMO.en.md). Spanish version: [docs/DEMO.md](docs/DEMO.md).
@@ -123,9 +123,9 @@ scripts/                Ingestion/classification scripts
 src/config/             Project configuration
 src/knowledge/          RAG, sources, registry, indexing, retrieval
 src/models/             Fitness-domain Pydantic models
-src/agents/             Specialized agents (in progress)
+src/agents/             Specialized agents (intake, assessment, training, nutrition, progress)
 src/generators/         XLSX/PDF exporters (in progress)
-src/graph/              LangGraph orchestration (in progress)
+src/graph/              LangGraph orchestration with SQLite checkpoints
 tests/                  Test suite
 ```
 
@@ -136,7 +136,7 @@ uv run ruff check .
 uv run pytest
 ```
 
-The suite covers chunking, indexing, retrieval, registry sync, fitness models, and validators.
+The suite covers chunking, indexing, retrieval, registry sync, fitness models, validators, agents, database, and graph.
 
 ## Roadmap
 

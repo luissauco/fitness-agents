@@ -6,7 +6,7 @@ This roadmap keeps the direction of `fitness-agents` visible and highlights whic
 
 ## v0.1 - Domain Foundation
 
-Status: advanced work in progress.
+Status: complete.
 
 - [x] `fitness-kb` CLI.
 - [x] Source registry.
@@ -18,13 +18,17 @@ Status: advanced work in progress.
 
 ## v0.2 - Agents
 
-- [ ] Intake agent.
-- [ ] Body assessment agent.
-- [ ] Training agent.
-- [ ] Nutrition agent.
-- [ ] Progress agent.
-- [ ] LangGraph orchestrator.
-- [ ] Prompts with per-agent RAG context.
+Status: complete.
+
+- [x] Intake agent.
+- [x] Body assessment agent.
+- [x] Training agent.
+- [x] Nutrition agent.
+- [x] Progress agent.
+- [x] LangGraph orchestrator with SQLite checkpoints.
+- [x] Prompts with per-agent RAG context.
+- [x] `fitness` CLI with start, checkin, and status commands.
+- [x] SQLite persistence with user and session repositories.
 
 ## v0.3 - Professional Outputs
 

@@ -25,16 +25,21 @@ La mayoria de herramientas fitness con IA responden de forma generica. `fitness-
 Ya implementado:
 
 - CLI `fitness-kb` para listar, ingerir, indexar y buscar fuentes.
+- CLI `fitness` con comandos `start`, `checkin` y `status` para interactuar con el sistema.
 - Base RAG con ChromaDB, chunking, embeddings y filtros por topic, autor, fiabilidad y tipo de fuente.
 - Ingesta de videos con `yt-dlp` y transcripcion local.
 - Registry con cientos de transcripciones fitness en espanol.
-- Modelos Pydantic para usuario, cuestionario, evaluacion corporal, ejercicios, mesociclo, nutricion y progreso.
-- Validadores cruzados y suite de tests.
+- Modelos Pydantic para usuario, cuestionario, evaluacion corporal, ejercicios, mesociclo, nutricion, progreso, sesion de intake y check-in.
+- Agentes especializados: intake, evaluacion corporal, entrenamiento, nutricion y progreso.
+- `ClaudeClient` async con structured outputs, reintentos configurables y timeout.
+- Orquestador LangGraph con checkpoints SQLite y estado compartido por sesion.
+- Persistencia SQLite con repositorios para usuarios y sesiones.
+- Prompts especificos por agente con contexto RAG.
+- Suite de tests para agentes, base de datos y grafo.
 
 En desarrollo:
 
-- Agentes LangGraph especializados.
-- Generacion final de Excel/PDF.
+- Generacion de mesociclos en Excel y planes nutricionales en PDF.
 - Interfaz de demo para usuarios no tecnicos.
 - Fuentes cientificas adicionales y citas normalizadas.
 
@@ -44,20 +49,15 @@ En desarrollo:
 uv sync --extra dev
 cp .env.example .env
 
+# Base de conocimiento
 uv run fitness-kb list
 uv run fitness-kb index-all
 uv run fitness-kb search "como entrenar pectoral para hipertrofia" --agent training -k 3
-```
 
-Ejemplo de uso desde Python:
-
-```python
-from src.models import Questionnaire
-
-questionnaire = Questionnaire.get_default()
-
-print(len(questionnaire.all_questions()))
-print(questionnaire.required_question_ids()[:5])
+# Sistema de agentes
+uv run fitness start --user-id usuario1
+uv run fitness checkin --user-id usuario1
+uv run fitness status --user-id usuario1
 ```
 
 Hay una guia mas completa en [docs/DEMO.md](docs/DEMO.md). English version: [docs/DEMO.en.md](docs/DEMO.en.md).
@@ -123,9 +123,9 @@ scripts/                Scripts operativos de ingesta/clasificacion
 src/config/             Configuracion del proyecto
 src/knowledge/          RAG, fuentes, registry, indexacion y recuperacion
 src/models/             Modelos Pydantic del dominio fitness
-src/agents/             Agentes especializados (en desarrollo)
+src/agents/             Agentes especializados (intake, assessment, training, nutrition, progress)
 src/generators/         Exportadores XLSX/PDF (en desarrollo)
-src/graph/              Orquestacion LangGraph (en desarrollo)
+src/graph/              Orquestacion LangGraph con checkpoints SQLite
 tests/                  Suite de tests
 ```
 
@@ -136,7 +136,7 @@ uv run ruff check .
 uv run pytest
 ```
 
-La suite cubre chunking, indexacion, recuperacion, sincronizacion del registry, modelos fitness y validadores.
+La suite cubre chunking, indexacion, recuperacion, sincronizacion del registry, modelos fitness, validadores, agentes, base de datos y grafo.
 
 ## Roadmap
 

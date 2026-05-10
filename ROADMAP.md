@@ -6,7 +6,7 @@ Este roadmap mantiene visible hacia donde va `fitness-agents` y que partes estan
 
 ## v0.1 - Base Del Dominio
 
-Estado: en curso avanzado.
+Estado: completo.
 
 - [x] CLI `fitness-kb`.
 - [x] Registry de fuentes.
@@ -18,13 +18,17 @@ Estado: en curso avanzado.
 
 ## v0.2 - Agentes
 
-- [ ] Agente de intake.
-- [ ] Agente de evaluacion corporal.
-- [ ] Agente de entrenamiento.
-- [ ] Agente de nutricion.
-- [ ] Agente de progreso.
-- [ ] Orquestador LangGraph.
-- [ ] Prompts con contexto RAG por agente.
+Estado: completo.
+
+- [x] Agente de intake.
+- [x] Agente de evaluacion corporal.
+- [x] Agente de entrenamiento.
+- [x] Agente de nutricion.
+- [x] Agente de progreso.
+- [x] Orquestador LangGraph con checkpoints SQLite.
+- [x] Prompts con contexto RAG por agente.
+- [x] CLI `fitness` con comandos start, checkin y status.
+- [x] Persistencia SQLite con repositorios de usuarios y sesiones.
 
 ## v0.3 - Salidas Profesionales
 
