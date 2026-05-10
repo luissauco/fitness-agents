@@ -24,6 +24,9 @@ dependencies = [
     "yt-dlp>=2024.11.0",
     "faster-whisper>=1.0.3",
     "sentence-transformers>=3.3.0",
+    "langgraph>=1.1.10",
+    "langgraph-checkpoint-sqlite>=3.0.3",
+    "tenacity>=9.1.4",
 ]
 
 [project.optional-dependencies]
@@ -34,6 +37,7 @@ dev = [
 ]
 
 [project.scripts]
+fitness = "cli.fitness_cli:app"
 fitness-kb = "cli.knowledge_cli:app"
 
 [build-system]

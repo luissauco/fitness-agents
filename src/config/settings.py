@@ -28,8 +28,33 @@ class Settings(BaseSettings):
     )
 
     # API de Claude
-    ANTHROPIC_API_KEY: SecretStr = Field(
-        ..., description="Clave de API de Anthropic (Claude)."
+    ANTHROPIC_API_KEY: SecretStr = Field(..., description="Clave de API de Anthropic (Claude).")
+
+    # Modelos de Claude por familia. Sobreescribibles vía variables de entorno.
+    MODEL_OPUS: str = Field(
+        default="claude-opus-4-7",
+        description="Modelo de razonamiento profundo (Training, Nutrition).",
+    )
+    MODEL_SONNET: str = Field(
+        default="claude-sonnet-4-6",
+        description="Modelo conversacional / vision (Intake, Assessment, Progress).",
+    )
+    MODEL_HAIKU: str = Field(
+        default="claude-haiku-4-5-20251001",
+        description="Modelo ligero para tareas simples (reservado para futuro).",
+    )
+
+    # Parámetros de reintentos del cliente de Claude.
+    CLAUDE_MAX_RETRIES: int = Field(
+        default=3,
+        ge=1,
+        le=10,
+        description="Reintentos máximos ante fallos de validación o de red.",
+    )
+    CLAUDE_REQUEST_TIMEOUT_S: int = Field(
+        default=120,
+        ge=10,
+        description="Timeout en segundos por llamada a la API de Claude.",
     )
 
     # ChromaDB

@@ -13,6 +13,7 @@ from src.models.body_assessment import (
     PhaseRecommendation,
     VisualAssessment,
 )
+from src.models.checkin_input import CheckinInput
 from src.models.common import MacroDistribution
 from src.models.exercise_db import (
     Equipment,
@@ -22,6 +23,7 @@ from src.models.exercise_db import (
     MovementPattern,
     MuscleGroup,
 )
+from src.models.intake_session import IntakeSession, IntakeTurn
 from src.models.mesocycle import (
     ExerciseLog,
     Mesocycle,
@@ -79,6 +81,7 @@ __all__ = [
     "BodyAssessment",
     "BodyMeasurements",
     "CheatMealProtocol",
+    "CheckinInput",
     "DailyDiet",
     "Equipment",
     "Exercise",
@@ -90,6 +93,8 @@ __all__ = [
     "Goals",
     "GymEquipment",
     "InterchangeRules",
+    "IntakeSession",
+    "IntakeTurn",
     "MacroDistribution",
     "Meal",
     "Mesocycle",
