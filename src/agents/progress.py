@@ -191,7 +191,9 @@ class ProgressAgent(BaseAgent):
 
         tracked: int = len(current_max)
         # Si no hay base previa, asumimos volumen completo (100 %).
-        adherence_pct: float = 100.0 if tracked == 0 else min(100.0, 100.0 * tracked / max(1, len(current_max)))
+        adherence_pct: float = (
+            100.0 if tracked == 0 else min(100.0, 100.0 * tracked / max(1, len(current_max)))
+        )
 
         return TrainingProgress(
             exercises_tracked=tracked,
@@ -229,7 +231,7 @@ class ProgressAgent(BaseAgent):
     ) -> int:
         """Si no se pasa explícito, asume que es el siguiente microciclo no logeado."""
         logs_for_meso: list[ProgressLog] = [
-            l for l in previous_logs if l.mesocycle_id == mesocycle.id
+            log for log in previous_logs if log.mesocycle_id == mesocycle.id
         ]
         # 1-indexed.
         next_micro: int = len(logs_for_meso) + 1
@@ -377,7 +379,7 @@ class ProgressAgent(BaseAgent):
             if photos
             else "(sin comparativa de fotos)\n"
         )
-        last_three = [l.decision.action for l in previous_logs[-3:]] if previous_logs else []
+        last_three = [log.decision.action for log in previous_logs[-3:]] if previous_logs else []
         forced_hint: str = (
             f"\n## REGLA DURA APLICABLE\n`action` debe ser `{forced_decision}`. "
             "Justifica ese ajuste con los datos del periodo.\n"

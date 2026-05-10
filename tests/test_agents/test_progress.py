@@ -50,7 +50,6 @@ from src.models.user_profile import (
 )
 from tests.helpers import FakeEmbeddingManager
 
-
 # --------------------------------------------------------------- Fixtures
 
 
