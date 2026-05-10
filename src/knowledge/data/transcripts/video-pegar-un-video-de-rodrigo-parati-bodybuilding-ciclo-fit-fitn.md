@@ -1,6 +1,6 @@
 ---
 id: video-pegar-un-video-de-rodrigo-parati-bodybuilding-ciclo-fit-fitn
-title: #pegar un video de @RODRIGO #parati #bodybuilding #ciclo #fit #fitnes...
+title: "#pegar un video de @RODRIGO #parati #bodybuilding #ciclo #fit #fitnes..."
 author: Fran Pérez Jurado
 source_type: video_transcript
 topics: [hypertrophy]

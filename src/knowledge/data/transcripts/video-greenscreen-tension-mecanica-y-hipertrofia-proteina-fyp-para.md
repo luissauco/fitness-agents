@@ -1,6 +1,6 @@
 ---
 id: video-greenscreen-tension-mecanica-y-hipertrofia-proteina-fyp-para
-title: #greenscreen tensión mecánica y hipertrofia #proteina  #fyp #parati  ...
+title: "#greenscreen tensión mecánica y hipertrofia #proteina  #fyp #parati  ..."
 author: Fran Pérez Jurado
 source_type: video_transcript
 topics: [nutrition, macros, hypertrophy, intensity]

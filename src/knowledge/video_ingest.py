@@ -17,6 +17,7 @@ Requisitos del sistema:
 
 from __future__ import annotations
 
+import json
 import logging
 import re
 import shutil
@@ -66,6 +67,19 @@ def _slugify(text: str, *, max_len: int = 60) -> str:
     if len(text) > max_len:
         text = text[:max_len].rstrip("-")
     return text or "video"
+
+
+def _make_slug(title: str, video_id: str) -> str:
+    """Construye un slug de vídeo que siempre conserva el ID externo."""
+    id_part: str = _slugify(video_id)
+    title_max_len: int = max(10, 54 - len(id_part))
+    title_part: str = _slugify(title, max_len=title_max_len)
+    return f"{title_part}-{id_part}"
+
+
+def _yaml_str(value: str | None) -> str:
+    """Serializa un string como escalar YAML seguro."""
+    return json.dumps(value or "", ensure_ascii=False)
 
 
 # ---------------------------------------------------------- VideoIngester
@@ -345,7 +359,7 @@ class VideoIngester:
         """Escribe el .md, lo registra en `registry.json` y devuelve la `KnowledgeSource`."""
         title: str = (video_meta.get("title") or "Sin título").strip()
         video_id: str = video_meta.get("id") or ""
-        slug: str = _slugify(f"{title}-{video_id}" if video_id else title)
+        slug: str = _make_slug(title, video_id) if video_id else _slugify(title)
         source_id: str = f"video-{slug}" if not slug.startswith("video-") else slug
 
         date_published: date | None = self._parse_yyyymmdd(video_meta.get("upload_date"))
@@ -401,17 +415,17 @@ class VideoIngester:
         front_matter: str = (
             "---\n"
             f"id: {source.id}\n"
-            f"title: {source.title}\n"
-            f"author: {source.author}\n"
+            f"title: {_yaml_str(source.title)}\n"
+            f"author: {_yaml_str(source.author)}\n"
             f"source_type: {source.source_type.value}\n"
             f"topics: [{topics_csv}]\n"
             f"reliability: {source.reliability.value}\n"
-            f"language: {source.language}\n"
+            f"language: {_yaml_str(source.language)}\n"
             f"date_published: {date_str}\n"
-            f"url: {source.url or ''}\n"
-            f"uploader: {uploader}\n"
+            f"url: {_yaml_str(source.url)}\n"
+            f"uploader: {_yaml_str(uploader)}\n"
             f"duration_seconds: {duration if duration is not None else ''}\n"
-            "summary: \"\"\n"
+            f"summary: {_yaml_str(source.summary)}\n"
             "---\n\n"
         )
         body: str = f"# {source.title}\n\n{transcript}\n"

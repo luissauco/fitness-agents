@@ -1,6 +1,6 @@
 ---
-id: video-desmintiendo-mitos-del-gimnasio-basado-en-ciencia-gimnasio-g
-title: Desmintiendo mitos del gimnasio basado en ciencia  #gimnasio #gym #en...
+id: video-desmintiendo-mitos-del-gimnasio-bas-7459132651128065313
+title: "Desmintiendo mitos del gimnasio basado en ciencia  #gimnasio #gym #en..."
 author: Fran Pérez Jurado
 source_type: video_transcript
 topics: [hypertrophy]

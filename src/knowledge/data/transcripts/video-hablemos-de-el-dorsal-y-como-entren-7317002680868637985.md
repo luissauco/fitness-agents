@@ -1,9 +1,9 @@
 ---
-id: video-hablemos-de-el-dorsal-y-como-entrenarlo-dorsal-dorsales-entr
-title: Hablemos de el dorsal y como entrenarlo. #dorsal #dorsales #entrenami...
+id: video-hablemos-de-el-dorsal-y-como-entren-7317002680868637985
+title: "Hablemos de el dorsal y como entrenarlo. #dorsal #dorsales #entrenami..."
 author: Fran Pérez Jurado
 source_type: video_transcript
-topics: [exercise_selection, biomechanics]
+topics: [hypertrophy]
 reliability: expert_opinion
 language: es
 date_published: 2023-12-26
