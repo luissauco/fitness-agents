@@ -25,7 +25,7 @@ Most AI fitness tools answer in a generic way. `fitness-agents` is designed to b
 Implemented:
 
 - `fitness-kb` CLI for listing, ingesting, indexing, and searching sources.
-- `fitness` CLI with `start`, `checkin`, and `status` commands to interact with the agent system.
+- `fitness` CLI with `start`, `checkin`, `status`, and `export-mesocycle`, `export-nutrition`, `export-progress` commands.
 - RAG layer with ChromaDB, chunking, embeddings, and filters by topic, author, reliability, and source type.
 - Video ingestion with `yt-dlp` and local transcription.
 - Registry with hundreds of Spanish fitness transcripts.
@@ -34,13 +34,15 @@ Implemented:
 - Async `ClaudeClient` with structured outputs, configurable retries, and timeout.
 - LangGraph orchestrator with SQLite checkpoints and per-session shared state.
 - SQLite persistence with repositories for users and sessions.
+- File generators: mesocycle Excel (program, weekly schedule, notes), nutrition plan PDF, and progress report PDF with a weight chart.
+- Generation wired into the graph (nodes produce the files) plus CLI commands to regenerate them without re-running agents.
 - Per-agent prompts with RAG context.
-- Test suite covering agents, database, and graph.
+- Test suite covering agents, database, graph, and generators.
 
 In progress:
 
-- Excel mesocycle and PDF nutrition plan generation.
-- A non-technical user demo.
+- Non-technical user interface (Telegram bot or web app).
+- Agent tools (`src/tools/`) not implemented yet.
 - Additional scientific sources with normalized citations.
 
 ## Quick Demo
@@ -58,6 +60,11 @@ uv run fitness-kb search "how should I train chest for hypertrophy" --agent trai
 uv run fitness start --user-id user1
 uv run fitness checkin --user-id user1
 uv run fitness status --user-id user1
+
+# Regenerate files without re-running agents
+uv run fitness export-mesocycle --user-id user1
+uv run fitness export-nutrition --user-id user1
+uv run fitness export-progress --user-id user1
 ```
 
 Read the full demo in [docs/DEMO.en.md](docs/DEMO.en.md). Spanish version: [docs/DEMO.md](docs/DEMO.md).
@@ -124,8 +131,9 @@ src/config/             Project configuration
 src/knowledge/          RAG, sources, registry, indexing, retrieval
 src/models/             Fitness-domain Pydantic models
 src/agents/             Specialized agents (intake, assessment, training, nutrition, progress)
-src/generators/         XLSX/PDF exporters (in progress)
+src/generators/         XLSX/PDF generators (mesocycle, nutrition, progress)
 src/graph/              LangGraph orchestration with SQLite checkpoints
+src/db/                 SQLite persistence (connection and repositories)
 tests/                  Test suite
 ```
 
@@ -147,7 +155,7 @@ Useful contributions right now:
 - Improve examples.
 - Add scientific sources with clean metadata.
 - Create test cases for agents.
-- Convert model outputs into usable PDFs/Excel files.
+- Build the non-technical user interface (Telegram bot or web app).
 - Prepare a reproducible web demo or notebook.
 
 ## Contributing

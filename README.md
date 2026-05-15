@@ -25,7 +25,7 @@ La mayoria de herramientas fitness con IA responden de forma generica. `fitness-
 Ya implementado:
 
 - CLI `fitness-kb` para listar, ingerir, indexar y buscar fuentes.
-- CLI `fitness` con comandos `start`, `checkin` y `status` para interactuar con el sistema.
+- CLI `fitness` con comandos `start`, `checkin`, `status` y `export-mesocycle`, `export-nutrition`, `export-progress`.
 - Base RAG con ChromaDB, chunking, embeddings y filtros por topic, autor, fiabilidad y tipo de fuente.
 - Ingesta de videos con `yt-dlp` y transcripcion local.
 - Registry con cientos de transcripciones fitness en espanol.
@@ -34,13 +34,15 @@ Ya implementado:
 - `ClaudeClient` async con structured outputs, reintentos configurables y timeout.
 - Orquestador LangGraph con checkpoints SQLite y estado compartido por sesion.
 - Persistencia SQLite con repositorios para usuarios y sesiones.
+- Generadores de archivos: Excel del mesociclo (programa, esquema semanal y notas), PDF del plan nutricional y PDF del informe de progreso con grafica de peso.
+- Generacion cableada en el grafo (los nodos producen los archivos) y comandos CLI para regenerarlos sin re-ejecutar agentes.
 - Prompts especificos por agente con contexto RAG.
-- Suite de tests para agentes, base de datos y grafo.
+- Suite de tests para agentes, base de datos, grafo y generadores.
 
 En desarrollo:
 
-- Generacion de mesociclos en Excel y planes nutricionales en PDF.
-- Interfaz de demo para usuarios no tecnicos.
+- Interfaz para usuarios no tecnicos (bot de Telegram o web app).
+- Herramientas de agente (`src/tools/`) aun sin implementar.
 - Fuentes cientificas adicionales y citas normalizadas.
 
 ## Demo Rapida
@@ -58,6 +60,11 @@ uv run fitness-kb search "como entrenar pectoral para hipertrofia" --agent train
 uv run fitness start --user-id usuario1
 uv run fitness checkin --user-id usuario1
 uv run fitness status --user-id usuario1
+
+# Regenerar archivos sin re-ejecutar agentes
+uv run fitness export-mesocycle --user-id usuario1
+uv run fitness export-nutrition --user-id usuario1
+uv run fitness export-progress --user-id usuario1
 ```
 
 Hay una guia mas completa en [docs/DEMO.md](docs/DEMO.md). English version: [docs/DEMO.en.md](docs/DEMO.en.md).
@@ -124,8 +131,9 @@ src/config/             Configuracion del proyecto
 src/knowledge/          RAG, fuentes, registry, indexacion y recuperacion
 src/models/             Modelos Pydantic del dominio fitness
 src/agents/             Agentes especializados (intake, assessment, training, nutrition, progress)
-src/generators/         Exportadores XLSX/PDF (en desarrollo)
+src/generators/         Generadores XLSX/PDF (mesociclo, nutricion, progreso)
 src/graph/              Orquestacion LangGraph con checkpoints SQLite
+src/db/                 Persistencia SQLite (conexion y repositorios)
 tests/                  Suite de tests
 ```
 
@@ -145,7 +153,7 @@ El plan publico esta en [ROADMAP.md](ROADMAP.md). English version: [ROADMAP.en.m
 - Mejorar ejemplos de uso.
 - Anadir fuentes cientificas con metadata limpia.
 - Crear casos de prueba para agentes.
-- Convertir la salida de modelos en PDFs/Excel usables.
+- Construir la interfaz para usuarios no tecnicos (bot de Telegram o web app).
 - Preparar una demo web o notebook reproducible.
 
 ## Contribuir
