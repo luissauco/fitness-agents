@@ -256,3 +256,53 @@ class ProgressLogRepository:
                     log.created_at.isoformat(timespec="seconds"),
                 ),
             )
+
+
+# ------------------------------------------------------ TelegramUser
+
+
+class TelegramUserRepository:
+    """Mapping entre chat_id de Telegram y user_id interno del sistema."""
+
+    _TABLE: Final[str] = "telegram_users"
+
+    def __init__(self, db_path: Path | None = None) -> None:
+        self._db_path: Path | None = db_path
+
+    def get_by_chat_id(self, chat_id: int) -> tuple[str, bool] | None:
+        """Devuelve (user_id, is_admin) para el chat_id, o None si no existe."""
+        with open_connection(self._db_path) as conn:
+            row: Any = conn.execute(
+                f"SELECT user_id, is_admin FROM {self._TABLE} WHERE chat_id = ?",
+                (chat_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        return row["user_id"], bool(row["is_admin"])
+
+    def register(self, chat_id: int, user_id: str, is_admin: bool = False) -> None:
+        """Registra un nuevo chat_id. Lanza IntegrityError si ya existe."""
+        with open_connection(self._db_path) as conn:
+            conn.execute(
+                f"""
+                INSERT INTO {self._TABLE} (chat_id, user_id, created_at, is_admin)
+                VALUES (?, ?, ?, ?)
+                """,
+                (chat_id, user_id, _now_iso(), int(is_admin)),
+            )
+
+    def is_registered(self, chat_id: int) -> bool:
+        """True si el chat_id ya tiene un user_id asignado."""
+        with open_connection(self._db_path) as conn:
+            row: Any = conn.execute(
+                f"SELECT 1 FROM {self._TABLE} WHERE chat_id = ?", (chat_id,)
+            ).fetchone()
+        return row is not None
+
+    def list_all(self) -> list[tuple[int, str]]:
+        """Lista todos los pares (chat_id, user_id) registrados."""
+        with open_connection(self._db_path) as conn:
+            rows: list[Any] = conn.execute(
+                f"SELECT chat_id, user_id FROM {self._TABLE} ORDER BY created_at"
+            ).fetchall()
+        return [(row["chat_id"], row["user_id"]) for row in rows]

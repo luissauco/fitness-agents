@@ -4,6 +4,7 @@ Comandos:
     fitness start    --user-id <id>   Onboarding interactivo del usuario.
     fitness checkin  --user-id <id>   Check-in bisemanal.
     fitness status   --user-id <id>   Estado actual del usuario.
+    fitness telegram                  Lanza el bot de Telegram.
 """
 
 from __future__ import annotations
@@ -39,6 +40,14 @@ app.command("status")(status_command)
 app.command("export-mesocycle")(export_mesocycle_command)
 app.command("export-nutrition")(export_nutrition_command)
 app.command("export-progress")(export_progress_command)
+
+
+@app.command("telegram")
+def telegram_command() -> None:
+    """Lanza el bot de Telegram."""
+    from src.telegram_bot.app import run_bot  # noqa: PLC0415
+
+    run_bot()
 
 
 if __name__ == "__main__":

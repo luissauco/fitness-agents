@@ -7,7 +7,7 @@ comando para evitar duplicar el wiring.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from src.agents.assessment import AssessmentAgent
 from src.agents.claude_client import ClaudeClient
@@ -22,9 +22,10 @@ from src.db.repositories import (
     MesocycleRepository,
     NutritionPlanRepository,
     ProgressLogRepository,
+    TelegramUserRepository,
     UserProfileRepository,
 )
-from src.graph.workflow import AgentBundle
+from src.graph.workflow import AgentBundle, build_workflow
 from src.knowledge.embeddings import EmbeddingManager
 from src.knowledge.retriever import KnowledgeRetriever
 
@@ -38,6 +39,7 @@ class Repositories:
     mesocycle: MesocycleRepository
     nutrition_plan: NutritionPlanRepository
     progress_log: ProgressLogRepository
+    telegram_user: TelegramUserRepository
 
 
 @dataclass
@@ -47,6 +49,9 @@ class Container:
     settings: Settings
     bundle: AgentBundle
     repos: Repositories
+    # workflow compilado sin checkpointer (la CLI lo usa directamente;
+    # el bot construye uno propio con checkpointer en post_init).
+    workflow: object = field(default=None, repr=False)
 
 
 def build_container() -> Container:
@@ -73,8 +78,9 @@ def build_container() -> Container:
         mesocycle=MesocycleRepository(),
         nutrition_plan=NutritionPlanRepository(),
         progress_log=ProgressLogRepository(),
+        telegram_user=TelegramUserRepository(),
     )
-    return Container(settings=settings, bundle=bundle, repos=repos)
+    return Container(settings=settings, bundle=bundle, repos=repos, workflow=build_workflow(bundle))
 
 
 def persist_artifacts(state: dict, repos: Repositories) -> list[str]:

@@ -209,3 +209,60 @@ Funcional end-to-end por CLI. **Pendiente**: interfaz para usuarios no
 técnicos (bot de Telegram o web app) y herramientas de agente
 (`src/tools/`, hoy vacío). Mantén este archivo actualizado cuando el
 estado del proyecto cambie.
+
+## 13. Interfaz Telegram (`src/telegram_bot/`)
+
+Bot de Telegram que expone el sistema como interfaz conversacional para múltiples usuarios autorizados.
+
+### Estructura
+
+```
+src/telegram_bot/
+├── app.py                          # Punto de entrada: build_application(), run_bot()
+├── handlers/
+│   ├── auth.py                     # Decorador require_whitelist
+│   ├── start.py                    # /start → onboarding o estado
+│   ├── intake_flow.py              # Flujo conversacional de intake (1 pregunta/turno)
+│   ├── checkin.py                  # /checkin → inicia state machine
+│   ├── checkin_flow.py             # State machine de 13 pasos del check-in
+│   ├── status.py                   # /status
+│   ├── export.py                   # /export con submenú inline
+│   ├── help.py                     # /help estático
+│   └── fallback.py                 # Mensajes fuera de flujo
+├── keyboards/
+│   ├── question_keyboard.py        # Teclado según QuestionType
+│   └── common.py                   # Botones reutilizables
+├── services/
+│   ├── user_mapping.py             # chat_id ↔ user_id (síncrono)
+│   ├── workflow_runner.py          # WorkflowInput → WorkflowOutput
+│   ├── photo_storage.py            # Descarga y persiste fotos
+│   └── scheduler.py               # Recordatorio bisemanal de check-in
+├── messages/
+│   ├── intake.py                   # Textos del onboarding
+│   ├── checkin.py                  # Textos del check-in
+│   ├── status.py                   # Textos de estado
+│   └── errors.py                   # Mensajes de error
+└── utils/
+    ├── formatting.py               # Helpers HTML
+    └── file_sender.py              # Envío de documentos
+```
+
+### Variables de entorno
+
+```
+TELEGRAM_BOT_TOKEN=          # Token del bot (BotFather)
+TELEGRAM_ALLOWED_CHAT_IDS=   # CSV de chat IDs autorizados
+TELEGRAM_ADMIN_CHAT_ID=      # Chat ID que recibe errores
+```
+
+### Arranque
+
+```bash
+uv run fitness telegram
+```
+
+### Estado del proyecto
+
+Sistema **funcional end-to-end** por dos interfaces:
+- CLI: `fitness start | checkin | status | export-mesocycle | export-nutrition | export-progress`
+- Telegram: `/start | /checkin | /status | /export | /help`

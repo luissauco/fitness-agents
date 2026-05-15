@@ -96,4 +96,11 @@ CREATE TABLE IF NOT EXISTS progress_log (
 );
 CREATE INDEX IF NOT EXISTS idx_progress_log_user_date
     ON progress_log(user_id, log_date DESC);
+
+CREATE TABLE IF NOT EXISTS telegram_users (
+    chat_id INTEGER PRIMARY KEY,
+    user_id TEXT NOT NULL UNIQUE,
+    created_at TEXT NOT NULL,
+    is_admin INTEGER DEFAULT 0
+);
 """

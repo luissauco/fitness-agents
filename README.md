@@ -120,6 +120,39 @@ uv run fitness-kb ingest-from-list videos.txt --topics hypertrophy
 uv run fitness-kb sync-registry --dry-run
 ```
 
+## Bot de Telegram
+
+Además del CLI, el sistema expone una interfaz conversacional por bot de Telegram.
+
+### Setup
+
+1. Crea un bot con [@BotFather](https://t.me/botfather) y copia el token.
+2. Obtén los chat IDs de los usuarios autorizados (cada uno envía un mensaje a [@userinfobot](https://t.me/userinfobot)).
+3. Añade a `.env`:
+   ```
+   TELEGRAM_BOT_TOKEN=tu_token_aqui
+   TELEGRAM_ALLOWED_CHAT_IDS=chat_id_1,chat_id_2,chat_id_3
+   TELEGRAM_ADMIN_CHAT_ID=tu_chat_id
+   ```
+4. Arranca el bot:
+   ```bash
+   uv run fitness telegram
+   ```
+
+### Comandos disponibles
+
+| Comando | Descripción |
+|---------|-------------|
+| `/start` | Inicia el cuestionario de onboarding o muestra el estado actual |
+| `/checkin` | Inicia el check-in bisemanal guiado |
+| `/status` | Muestra mesociclo activo, próximo check-in y archivos generados |
+| `/export` | Reenvía archivos generados (mesociclo Excel, dieta PDF, informe PDF) |
+| `/help` | Muestra la ayuda con todos los comandos |
+
+### Arquitectura
+
+El bot es una capa de presentación pura. No duplica lógica de agentes: llama al mismo workflow LangGraph que usa el CLI y traduce el estado a mensajes de Telegram. Cada usuario autorizado tiene su propio estado aislado (thread_id = user_id en el checkpointer SQLite).
+
 ## Estructura
 
 ```text

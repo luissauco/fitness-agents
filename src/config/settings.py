@@ -90,6 +90,20 @@ class Settings(BaseSettings):
         description="Solapamiento entre chunks consecutivos.",
     )
 
+    # Bot de Telegram
+    telegram_bot_token: str = Field(default="", description="Token del bot de Telegram.")
+    telegram_allowed_chat_ids: str = Field(default="", description="CSV de chat IDs autorizados.")
+    telegram_admin_chat_id: str = Field(
+        default="", description="Chat ID que recibe errores críticos del bot."
+    )
+
+    @property
+    def allowed_chat_ids(self) -> set[int]:
+        """Conjunto de chat IDs autorizados para usar el bot."""
+        if not self.telegram_allowed_chat_ids:
+            return set()
+        return {int(x.strip()) for x in self.telegram_allowed_chat_ids.split(",") if x.strip()}
+
     # Rutas derivadas (no se leen del entorno).
     @property
     def knowledge_data_dir(self) -> Path:
