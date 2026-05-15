@@ -79,6 +79,10 @@ async def _run_start(*, user_id: str, force: bool) -> None:
         f"Fase actual: [cyan]{state.get('current_phase')}[/cyan]. "
         f"Persistido: {', '.join(saved) if saved else '—'}."
     )
+    if files := state.get("generated_files"):
+        _console.print("[bold]Archivos generados:[/bold]")
+        for f in files:
+            _console.print(f"  · {f}")
     if errors := state.get("errors"):
         _console.print("[bold red]Errores:[/bold red]")
         for e in errors:

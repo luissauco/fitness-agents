@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import typer
 from rich.console import Console
 from rich.table import Table
@@ -70,3 +72,21 @@ def status_command(
         table.add_row("Último check-in", "—")
 
     _console.print(table)
+
+    # Archivos generados para este usuario (en output/).
+    safe_name: str = profile.personal.name.replace(" ", "_")
+    output_dir: Path = Path("output")
+    files: list[Path] = (
+        sorted(p for p in output_dir.glob(f"*_{safe_name}_*") if p.is_file())
+        if output_dir.is_dir()
+        else []
+    )
+    if files:
+        _console.print("\n[bold]Archivos generados:[/bold]")
+        for f in files:
+            _console.print(f"  · {f}")
+    _console.print(
+        "\n[dim]Re-exportar: fitness export-mesocycle | export-nutrition | "
+        "export-progress --user-id "
+        f"{user_id}[/dim]"
+    )

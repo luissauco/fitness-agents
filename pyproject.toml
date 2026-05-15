@@ -27,6 +27,9 @@ dependencies = [
     "langgraph>=1.1.10",
     "langgraph-checkpoint-sqlite>=3.0.3",
     "tenacity>=9.1.4",
+    "reportlab>=4.5.1",
+    "pillow>=12.2.0",
+    "matplotlib>=3.10.9",
 ]
 
 [project.optional-dependencies]
@@ -75,3 +78,8 @@ indent-style = "space"
 testpaths = ["tests"]
 asyncio_mode = "auto"
 pythonpath = ["."]
+
+[dependency-groups]
+dev = [
+    "pypdf>=6.11.0",
+]

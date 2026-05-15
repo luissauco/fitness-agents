@@ -31,6 +31,9 @@ from src.agents.intake import IntakeAgent
 from src.agents.nutrition import NutritionAgent
 from src.agents.progress import ProgressAgent
 from src.agents.training import TrainingAgent
+from src.generators.pdf_nutrition import NutritionPDFGenerator
+from src.generators.pdf_progress import ProgressPDFGenerator
+from src.generators.xlsx_mesocycle import MesocycleExcelGenerator
 from src.graph.state import FitnessState
 from src.models.body_assessment import BodyMeasurements
 
@@ -62,6 +65,13 @@ def _append_error(state: FitnessState, message: str) -> list[str]:
     existing: list[str] = list(state.get("errors") or [])
     existing.append(message)
     return existing
+
+
+def _with_generated_file(state: FitnessState, path: object) -> list[str]:
+    """Devuelve `generated_files` con el path añadido (no muta el estado)."""
+    files: list[str] = list(state.get("generated_files") or [])
+    files.append(str(path))
+    return files
 
 
 # -------------------------------------------------------------------- Nodos
@@ -159,10 +169,20 @@ def _make_training_node(bundle: AgentBundle):
             _logger.exception("workflow.training_node.failed")
             return {"errors": _append_error(state, f"training: {exc}")}
 
-        return {
+        update: dict[str, Any] = {
             "current_mesocycle": mesocycle,
             "current_microcycle_index": 0,
         }
+        try:
+            path = MesocycleExcelGenerator().generate(mesocycle, profile.personal.name)
+            update["generated_files"] = _with_generated_file(state, path)
+        except Exception as exc:  # noqa: BLE001
+            _logger.exception("workflow.training_node.excel_failed")
+            update["warnings"] = [
+                *(state.get("warnings") or []),
+                f"excel_mesociclo: {exc}",
+            ]
+        return update
 
     return training_node
 
@@ -191,7 +211,17 @@ def _make_nutrition_node(bundle: AgentBundle):
             _logger.exception("workflow.nutrition_node.failed")
             return {"errors": _append_error(state, f"nutrition: {exc}")}
 
-        return {"current_nutrition_plan": plan}
+        update: dict[str, Any] = {"current_nutrition_plan": plan}
+        try:
+            path = NutritionPDFGenerator().generate(plan, profile.personal.name)
+            update["generated_files"] = _with_generated_file(state, path)
+        except Exception as exc:  # noqa: BLE001
+            _logger.exception("workflow.nutrition_node.pdf_failed")
+            update["warnings"] = [
+                *(state.get("warnings") or []),
+                f"pdf_nutricional: {exc}",
+            ]
+        return update
 
     return nutrition_node
 
@@ -223,11 +253,23 @@ def _make_progress_node(bundle: AgentBundle):
             _logger.exception("workflow.progress_node.failed")
             return {"errors": _append_error(state, f"progress: {exc}")}
 
-        return {
+        update: dict[str, Any] = {
             "progress_logs": [*previous_logs, log],
             "last_checkin_date": date.today(),
             "pending_checkin_data": None,
         }
+        try:
+            path = ProgressPDFGenerator().generate(
+                log, profile.personal.name, previous_logs=previous_logs
+            )
+            update["generated_files"] = _with_generated_file(state, path)
+        except Exception as exc:  # noqa: BLE001
+            _logger.exception("workflow.progress_node.pdf_failed")
+            update["warnings"] = [
+                *(state.get("warnings") or []),
+                f"pdf_progreso: {exc}",
+            ]
+        return update
 
     return progress_node
 

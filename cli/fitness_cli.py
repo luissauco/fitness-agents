@@ -17,6 +17,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from cli.commands.checkin import checkin_command  # noqa: E402
+from cli.commands.export import (  # noqa: E402
+    export_mesocycle_command,
+    export_nutrition_command,
+    export_progress_command,
+)
 from cli.commands.start import start_command  # noqa: E402
 from cli.commands.status import status_command  # noqa: E402
 
@@ -31,6 +36,9 @@ app: typer.Typer = typer.Typer(
 app.command("start")(start_command)
 app.command("checkin")(checkin_command)
 app.command("status")(status_command)
+app.command("export-mesocycle")(export_mesocycle_command)
+app.command("export-nutrition")(export_nutrition_command)
+app.command("export-progress")(export_progress_command)
 
 
 if __name__ == "__main__":

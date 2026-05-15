@@ -75,6 +75,10 @@ async def _run_checkin(*, user_id: str) -> None:
     )
     if decision is not None:
         _console.print(f"[bold]Decisión:[/bold] {decision.action} — {decision.reasoning}")
+    if files := final_state.get("generated_files"):
+        _console.print("[bold]Archivos generados:[/bold]")
+        for f in files:
+            _console.print(f"  · {f}")
     if errors := final_state.get("errors"):
         _console.print("[bold red]Errores:[/bold red]")
         for e in errors:

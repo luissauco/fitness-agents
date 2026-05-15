@@ -9,10 +9,12 @@ entrenamiento y nutrición basada en evidencia, complementado con estudios cient
 
 ## Stack
 - Python 3.12+, uv como gestor de paquetes
-- LangGraph para orquestación de agentes
+- LangGraph para orquestación de agentes (con checkpointer SQLite)
 - ChromaDB como vector store local
 - Claude API (Anthropic) como LLM
+- SQLite para persistencia de perfiles, planes y progreso
 - openpyxl para generación de Excel
+- reportlab + matplotlib + pillow para generación de PDF
 - Typer + Rich para CLI
 - pytest para testing
 - ruff como formatter y linter
@@ -30,20 +32,24 @@ entrenamiento y nutrición basada en evidencia, complementado con estudios cient
 
 ## Estructura del proyecto
 src/
-knowledge/   ← módulo RAG (FOCO ACTUAL)
-agents/      ← agentes LangGraph (futuro)
-models/      ← modelos Pydantic (futuro)
-generators/  ← generadores xlsx/pdf (futuro)
-graph/       ← grafo de estados LangGraph (futuro)
-tools/       ← herramientas de agentes (futuro)
-db/          ← persistencia SQLite (futuro)
-config/      ← configuración
-cli/           ← interfaz de terminal
+knowledge/   ← módulo RAG (chunker, embeddings, indexer, retriever, fuentes)
+agents/      ← agentes LangGraph (intake, assessment, training, nutrition, progress)
+models/      ← modelos Pydantic
+generators/  ← generadores de archivos (Excel mesociclo, PDF nutrición y progreso)
+graph/       ← grafo de estados LangGraph (state, workflow, checkpoints)
+db/          ← persistencia SQLite (connection, repositories)
+config/      ← configuración (settings)
+tools/       ← herramientas de agentes (aún sin uso, solo __init__.py)
+cli/           ← interfaz de terminal (fitness_cli, knowledge_cli, commands/)
 tests/         ← tests
-output/        ← archivos generados
+output/        ← archivos generados (xlsx/pdf)
+
 ## Fase actual
-Construyendo el módulo RAG (src/knowledge/).
-El resto de carpetas solo necesitan __init__.py por ahora.
+Sistema end-to-end funcional por CLI: cuestionario → evaluación →
+mesociclo en Excel → dieta en PDF → check-in bisemanal en PDF.
+Comandos `fitness start | checkin | status | export-mesocycle |
+export-nutrition | export-progress`.
+Siguiente fase: UI (bot de Telegram o web app); `src/tools/` aún sin implementar.
 
 
 ---
