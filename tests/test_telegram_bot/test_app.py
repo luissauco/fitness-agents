@@ -15,9 +15,9 @@ from src.telegram_bot.app import _global_error_handler, _route_photo, _route_tex
 def _make_settings(admin_chat_id: str = "") -> MagicMock:
     """Crea un mock de Settings con los campos necesarios."""
     settings = MagicMock()
-    settings.telegram_bot_token = "123:ABC"
+    settings.TELEGRAM_BOT_TOKEN = "123:ABC"
     settings.allowed_chat_ids = set()
-    settings.telegram_admin_chat_id = admin_chat_id
+    settings.TELEGRAM_ADMIN_CHAT_ID = admin_chat_id
     return settings
 
 

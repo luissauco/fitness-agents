@@ -170,12 +170,12 @@ async def test_generate_structured_extended_thinking_overrides_temperature(
         response_model=_Plan,
         temperature=0.3,
         thinking=True,
-        thinking_budget_tokens=2048,
     )
 
     kwargs = create_mock.await_args.kwargs
-    assert kwargs["temperature"] == 1.0
-    assert kwargs["thinking"] == {"type": "enabled", "budget_tokens": 2048}
+    assert "temperature" not in kwargs
+    assert kwargs["thinking"] == {"type": "adaptive"}
+    assert kwargs["output_config"] == {"effort": "high"}
 
 
 # ---------------------------------------------------------------------- text

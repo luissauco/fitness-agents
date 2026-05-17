@@ -32,8 +32,8 @@ def telegram_repo(db_path: Path) -> TelegramUserRepository:
 def settings_with_whitelist() -> Settings:
     return Settings(
         ANTHROPIC_API_KEY="test-key",
-        telegram_allowed_chat_ids="111,222,333",
-        telegram_admin_chat_id="111",
+        TELEGRAM_ALLOWED_CHAT_IDS="111,222,333",
+        TELEGRAM_ADMIN_CHAT_ID="111",
     )
 
 
