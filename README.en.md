@@ -1,171 +1,305 @@
-# fitness-agents
+<div align="center">
 
-English | [Espanol](README.md)
+# 🏋️ fitness-agents
+
+**Multi-agent nutrition and personal training system powered by AI**
 
 [![CI](https://github.com/luissauco/fitness-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/luissauco/fitness-agents/actions/workflows/ci.yml)
-![Python](https://img.shields.io/badge/python-3.12%2B-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![RAG](https://img.shields.io/badge/RAG-ChromaDB-purple)
+[![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?logo=python&logoColor=white)](https://python.org)
+[![Claude](https://img.shields.io/badge/Claude-Opus%204.7-D97757?logo=anthropic&logoColor=white)](https://anthropic.com)
+[![LangGraph](https://img.shields.io/badge/LangGraph-0.2-1C3A5E)](https://langchain-ai.github.io/langgraph)
+[![ChromaDB](https://img.shields.io/badge/RAG-ChromaDB-purple)](https://trychroma.com)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-A multi-agent system for generating training and nutrition plans with RAG, Pydantic models, and a Spanish fitness knowledge base.
+[Español](README.md) · [Quick demo](#quick-demo) · [Telegram bot](#telegram-bot) · [Installation](#installation)
 
-The goal is to turn evidence, technical fitness content, and user data into actionable outputs: questionnaires, assessments, mesocycles, nutrition plans, and progress reviews.
+---
 
-## Why It Exists
+*Converts scientific evidence, technical content and user data into personalised training and nutrition plans — with biweekly check-ins.*
 
-Most AI fitness tools answer in a generic way. `fitness-agents` is designed to be more traceable and structured:
+</div>
 
-- It retrieves local knowledge-base context before answering.
-- It models users, exercises, nutrition, mesocycles, and progress with Pydantic.
-- It validates consistency across training, nutrition, equipment, and goals.
-- It is built for Spanish-first hypertrophy content around biomechanics, volume, intensity, fatigue, and exercise selection.
+---
 
-## Current Status
+## What it does
 
-Implemented:
+`fitness-agents` is a pipeline of specialised agents that:
 
-- `fitness-kb` CLI for listing, ingesting, indexing, and searching sources.
-- `fitness` CLI with `start`, `checkin`, `status`, and `export-mesocycle`, `export-nutrition`, `export-progress` commands.
-- RAG layer with ChromaDB, chunking, embeddings, and filters by topic, author, reliability, and source type.
-- Video ingestion with `yt-dlp` and local transcription.
-- Registry with hundreds of Spanish fitness transcripts.
-- Pydantic models for users, questionnaires, body assessment, exercises, mesocycles, nutrition, progress, intake sessions, and check-ins.
-- Specialized agents: intake, body assessment, training, nutrition, and progress.
-- Async `ClaudeClient` with structured outputs, configurable retries, and timeout.
-- LangGraph orchestrator with SQLite checkpoints and per-session shared state.
-- SQLite persistence with repositories for users and sessions.
-- File generators: mesocycle Excel (program, weekly schedule, notes), nutrition plan PDF, and progress report PDF with a weight chart.
-- Generation wired into the graph (nodes produce the files) plus CLI commands to regenerate them without re-running agents.
-- Per-agent prompts with RAG context.
-- Test suite covering agents, database, graph, and generators.
+1. **Interviews the user** — adaptive conversational questionnaire (goals, availability, equipment, history)
+2. **Analyses body photos** — visual body fat estimation, weak/strong points and postural notes
+3. **Designs the mesocycle** — training programme in Excel organised by weekly microcycles
+4. **Generates the nutrition plan** — PDF with macros, calorie distribution and nutrition strategy
+5. **Tracks progress biweekly** — check-in with photos and weights, progress report PDF with weight chart
 
-In progress:
+Everything orchestrated by a LangGraph graph with state persisted in SQLite, accessible via CLI or Telegram bot.
 
-- Non-technical user interface (Telegram bot or web app).
-- Agent tools (`src/tools/`) not implemented yet.
-- Additional scientific sources with normalized citations.
+---
 
-## Quick Demo
+## Screenshots
 
-```bash
-uv sync --extra dev
-cp .env.example .env
+<table>
+<tr>
+<td align="center" width="50%">
 
-# Knowledge base
-uv run fitness-kb list
-uv run fitness-kb index-all
-uv run fitness-kb search "how should I train chest for hypertrophy" --agent training -k 3
+**Conversational onboarding**
 
-# Agent system
-uv run fitness start --user-id user1
-uv run fitness checkin --user-id user1
-uv run fitness status --user-id user1
+<img src="docs/screenshots/bot_onboarding.png" alt="Bot onboarding" width="320"/>
 
-# Regenerate files without re-running agents
-uv run fitness export-mesocycle --user-id user1
-uv run fitness export-nutrition --user-id user1
-uv run fitness export-progress --user-id user1
+*The intake agent interviews the user one question at a time*
+
+</td>
+<td align="center" width="50%">
+
+**Status panel and files**
+
+<img src="docs/screenshots/bot_status.png" alt="Bot status" width="320"/>
+
+*`/status` shows the active mesocycle, generated files and quick actions*
+
+</td>
+</tr>
+</table>
+
+---
+
+## Architecture
+
+```
+User (Telegram / CLI)
+        │
+        ▼
+┌───────────────────────────────────────────────────────┐
+│                   LangGraph Workflow                   │
+│                                                       │
+│  intake → assessment → training → nutrition           │
+│                              ↓                        │
+│                        schedule_checkin               │
+│                              ↓                        │
+│   checkin → progress ──────────────────────────────   │
+│                ↓ new_mesocycle / adjust               │
+│           training / nutrition                        │
+└───────────────────────────────────────────────────────┘
+        │                           │
+        ▼                           ▼
+  SQLite (state)           output/
+  fitness.sqlite           ├── Mesociclo_*.xlsx
+  state.sqlite             ├── Plan_Nutricional_*.pdf
+                           └── Informe_Progreso_*.pdf
+        │
+        ▼
+  ChromaDB (RAG)
+  Fitness knowledge base in Spanish
 ```
 
-Read the full demo in [docs/DEMO.en.md](docs/DEMO.en.md). Spanish version: [docs/DEMO.md](docs/DEMO.md).
+Each agent uses **Claude Opus 4.7** with adaptive thinking and queries the RAG base before generating its structured Pydantic output. The Telegram bot is a pure presentation layer — it calls the same graph as the CLI.
 
-## Use Cases
+---
 
-- Build an AI personal trainer.
-- Create a searchable fitness knowledge base with RAG.
-- Generate validated structures for training and nutrition plans.
-- Experiment with Pydantic models for fitness products.
-- Analyze creator content and convert it into indexable sources.
+## Features
 
-## Stack
+| Area | Details |
+|------|---------|
+| **Agents** | Conversational intake, visual body assessment, mesocycle design, nutrition planning, progress analysis |
+| **RAG** | Local ChromaDB, multilingual embeddings, filters by topic/author/reliability, YouTube ingestion |
+| **Outputs** | Excel mesocycle (programme + microcycles), nutrition PDF, progress PDF with weight chart |
+| **Persistence** | SQLite for profile, assessments, mesocycles, plans and progress logs |
+| **Orchestration** | LangGraph with SQLite checkpoints, per-user state, conditional routing |
+| **Interfaces** | CLI (`fitness`) + Telegram bot with whitelist and admin |
+| **Quality** | Pydantic v2, structured outputs with retries, ruff, pytest |
 
-- Python 3.12+
-- uv
-- ChromaDB
-- sentence-transformers
-- Pydantic v2
-- Typer + Rich
-- yt-dlp
-- faster-whisper
-- pytest + ruff
-- LangGraph and Claude API for the agent phase
+---
+
+## Quick demo
+
+```bash
+# Installation
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv sync --extra dev
+cp .env.example .env  # add ANTHROPIC_API_KEY
+
+# Knowledge base
+uv run fitness-kb index-all
+uv run fitness-kb search "volume periodisation for hypertrophy" --agent training -k 3
+
+# Full flow
+uv run fitness start --user-id me
+uv run fitness status --user-id me
+uv run fitness checkin --user-id me
+
+# Regenerate files without re-running agents
+uv run fitness export-mesocycle --user-id me
+uv run fitness export-nutrition --user-id me
+uv run fitness export-progress --user-id me
+
+# Telegram bot
+uv run fitness telegram
+```
+
+---
+
+## Telegram bot
+
+The bot exposes the full system via Telegram with whitelist-based authentication.
+
+### Setup in 4 steps
+
+1. Create a bot with [@BotFather](https://t.me/botfather) and copy the token
+2. Get your chat ID with [@userinfobot](https://t.me/userinfobot)
+3. Add to `.env`:
+   ```env
+   TELEGRAM_BOT_TOKEN=your_token
+   TELEGRAM_ALLOWED_CHAT_IDS=123456789
+   TELEGRAM_ADMIN_CHAT_ID=123456789
+   ```
+4. Start:
+   ```bash
+   uv run fitness telegram
+   ```
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `/start` | Full onboarding or regenerates the plan if you already have a profile |
+| `/checkin` | Guided biweekly check-in with photos and weights |
+| `/status` | Active mesocycle, next check-in date and generated files |
+| `/export` | Resends generated files (Excel + PDFs) |
+| `/help` | Help with all commands |
+
+---
 
 ## Installation
 
+### Requirements
+
+- Python 3.12+
+- [uv](https://docs.astral.sh/uv/)
+- Anthropic API key
+
+### Steps
+
 ```bash
+git clone https://github.com/luissauco/fitness-agents.git
+cd fitness-agents
+
 curl -LsSf https://astral.sh/uv/install.sh | sh
 uv sync --extra dev
 
 cp .env.example .env
+# edit .env with your ANTHROPIC_API_KEY
 ```
 
-Edit `.env` if you plan to use external providers:
+### Environment variables
 
-```bash
-ANTHROPIC_API_KEY=...
+```env
+# Required
+ANTHROPIC_API_KEY=sk-ant-...
+
+# ChromaDB
+CHROMA_PERSIST_DIR=./src/knowledge/data/chroma_db
+COLLECTION_NAME=fitness_knowledge
+
+# Embeddings
+EMBEDDING_MODEL=intfloat/multilingual-e5-small
+
+# Telegram (optional)
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_ALLOWED_CHAT_IDS=
+TELEGRAM_ADMIN_CHAT_ID=
 ```
 
-## CLI
+---
 
-```bash
-uv run fitness-kb list
-uv run fitness-kb stats
-uv run fitness-kb index-all
-uv run fitness-kb index <source_id>
-uv run fitness-kb search "<query>"
-uv run fitness-kb search "<query>" --agent training -k 5
-uv run fitness-kb ingest-video <url> --topics hypertrophy,biomechanics
-uv run fitness-kb list-profile <profile_url> --output videos.txt
-uv run fitness-kb ingest-from-list videos.txt --topics hypertrophy
-uv run fitness-kb sync-registry --dry-run
+## Project structure
+
+```
+fitness-agents/
+├── cli/                    # fitness-kb and fitness CLIs
+├── src/
+│   ├── agents/             # Specialised agents
+│   │   ├── claude_client.py    # Async Claude API wrapper
+│   │   ├── intake.py           # Conversational interview
+│   │   ├── assessment.py       # Visual body assessment
+│   │   ├── training.py         # Mesocycle design
+│   │   ├── nutrition.py        # Nutrition plan
+│   │   └── progress.py         # Progress analysis
+│   ├── graph/              # LangGraph orchestration
+│   │   ├── workflow.py         # State graph
+│   │   ├── state.py            # FitnessState
+│   │   └── checkpoints.py     # SQLite persistence
+│   ├── knowledge/          # RAG base
+│   │   ├── retriever.py        # Semantic search
+│   │   ├── indexer.py          # ChromaDB indexing
+│   │   └── sources/            # Source registry
+│   ├── generators/         # File generators
+│   │   ├── excel_mesocycle.py  # Excel with openpyxl
+│   │   ├── pdf_nutrition.py    # PDF with reportlab
+│   │   └── pdf_progress.py     # PDF with matplotlib chart
+│   ├── models/             # Pydantic domain models
+│   ├── db/                 # SQLite repositories
+│   ├── config/             # Settings (pydantic-settings)
+│   └── telegram_bot/       # Telegram bot
+│       ├── handlers/           # Commands and callbacks
+│       ├── services/           # WorkflowRunner, UserMapping, Scheduler
+│       └── messages/           # Response texts
+└── tests/                  # pytest suite
 ```
 
-## Project Structure
+---
 
-```text
-cli/                    fitness-kb command-line interface
-data/                   Auxiliary structured data
-docs/                   Demos and product documentation
-scripts/                Ingestion/classification scripts
-src/config/             Project configuration
-src/knowledge/          RAG, sources, registry, indexing, retrieval
-src/models/             Fitness-domain Pydantic models
-src/agents/             Specialized agents (intake, assessment, training, nutrition, progress)
-src/generators/         XLSX/PDF generators (mesocycle, nutrition, progress)
-src/graph/              LangGraph orchestration with SQLite checkpoints
-src/db/                 SQLite persistence (connection and repositories)
-tests/                  Test suite
-```
+## Tech stack
+
+| Layer | Technology |
+|-------|-----------|
+| LLM | Claude Opus 4.7 (Anthropic) |
+| Orchestration | LangGraph 0.2 with SQLite checkpointer |
+| RAG | ChromaDB + sentence-transformers (multilingual-e5-small) |
+| Validation | Pydantic v2 |
+| Bot | python-telegram-bot 21 |
+| Excel | openpyxl |
+| PDF | reportlab + matplotlib |
+| CLI | Typer + Rich |
+| Ingestion | yt-dlp + faster-whisper |
+| Tests | pytest + ruff |
+| Dep management | uv |
+
+---
 
 ## Quality
 
 ```bash
 uv run ruff check .
+uv run ruff format .
 uv run pytest
 ```
 
-The suite covers chunking, indexing, retrieval, registry sync, fitness models, validators, agents, database, and graph.
+The suite covers chunking, indexing, retrieval, registry sync, domain models, agents, persistence and the LangGraph graph.
+
+---
 
 ## Roadmap
 
-The public roadmap is in [ROADMAP.en.md](ROADMAP.en.md). Spanish version: [ROADMAP.md](ROADMAP.md).
+See [ROADMAP.en.md](ROADMAP.en.md) for the full plan. Most useful contributions right now:
 
-Useful contributions right now:
-
-- Improve examples.
-- Add scientific sources with clean metadata.
-- Create test cases for agents.
-- Build the non-technical user interface (Telegram bot or web app).
-- Prepare a reproducible web demo or notebook.
+- Add scientific sources with clean metadata
+- Create agent test cases with LLM mocks
+- Improve agent prompts with more RAG context
+- Web interface (alternative to the Telegram bot)
 
 ## Contributing
 
-Read [CONTRIBUTING.en.md](CONTRIBUTING.en.md) to set up the environment, run checks, and propose changes. Spanish version: [CONTRIBUTING.md](CONTRIBUTING.md).
+Read [CONTRIBUTING.en.md](CONTRIBUTING.en.md) to set up the environment, run checks and propose changes. Spanish version: [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Suggested GitHub Topics
-
-`fitness`, `ai-agents`, `rag`, `langchain`, `pydantic`, `nutrition`, `workout-planner`, `personal-trainer`, `spanish`, `knowledge-base`
+---
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).
+
+---
+
+<div align="center">
+
+Built with [Claude](https://anthropic.com) · [LangGraph](https://langchain-ai.github.io/langgraph) · [ChromaDB](https://trychroma.com)
+
+</div>

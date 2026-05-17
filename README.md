@@ -1,202 +1,305 @@
-# fitness-agents
+<div align="center">
 
-[English](README.en.md) | Espanol
+# 🏋️ fitness-agents
+
+**Sistema multi-agente de nutrición y entrenamiento personal con IA**
 
 [![CI](https://github.com/luissauco/fitness-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/luissauco/fitness-agents/actions/workflows/ci.yml)
-![Python](https://img.shields.io/badge/python-3.12%2B-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![RAG](https://img.shields.io/badge/RAG-ChromaDB-purple)
+[![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?logo=python&logoColor=white)](https://python.org)
+[![Claude](https://img.shields.io/badge/Claude-Opus%204.7-D97757?logo=anthropic&logoColor=white)](https://anthropic.com)
+[![LangGraph](https://img.shields.io/badge/LangGraph-0.2-1C3A5E)](https://langchain-ai.github.io/langgraph)
+[![ChromaDB](https://img.shields.io/badge/RAG-ChromaDB-purple)](https://trychroma.com)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-Sistema multi-agente para crear planes de entrenamiento y nutricion con RAG, modelos Pydantic y una base de conocimiento fitness en espanol.
+[English](README.en.md) · [Demo rápida](#demo-rápida) · [Telegram bot](#bot-de-telegram) · [Instalación](#instalación)
 
-El objetivo es convertir evidencia, divulgacion tecnica y datos del usuario en salidas accionables: cuestionarios, evaluaciones, mesociclos, planes nutricionales y seguimiento de progreso.
+---
 
-## Por Que Existe
+*Convierte evidencia científica, divulgación técnica y datos del usuario en planes de entrenamiento y nutrición personalizados — con seguimiento bisemanal.*
 
-La mayoria de herramientas fitness con IA responden de forma generica. `fitness-agents` busca ser mas trazable y estructurado:
+</div>
 
-- Recupera contexto desde una base de conocimiento local antes de responder.
-- Modela datos de usuario, ejercicios, nutricion, mesociclos y progreso con Pydantic.
-- Valida coherencia entre entrenamiento, nutricion, equipamiento y objetivos.
-- Esta pensado para trabajar en espanol y con contenido de hipertrofia basado en biomecanica, volumen, intensidad, fatiga y seleccion de ejercicios.
+---
 
-## Estado Actual
+## ¿Qué hace?
 
-Ya implementado:
+`fitness-agents` es un sistema de agentes especializados que:
 
-- CLI `fitness-kb` para listar, ingerir, indexar y buscar fuentes.
-- CLI `fitness` con comandos `start`, `checkin`, `status` y `export-mesocycle`, `export-nutrition`, `export-progress`.
-- Base RAG con ChromaDB, chunking, embeddings y filtros por topic, autor, fiabilidad y tipo de fuente.
-- Ingesta de videos con `yt-dlp` y transcripcion local.
-- Registry con cientos de transcripciones fitness en espanol.
-- Modelos Pydantic para usuario, cuestionario, evaluacion corporal, ejercicios, mesociclo, nutricion, progreso, sesion de intake y check-in.
-- Agentes especializados: intake, evaluacion corporal, entrenamiento, nutricion y progreso.
-- `ClaudeClient` async con structured outputs, reintentos configurables y timeout.
-- Orquestador LangGraph con checkpoints SQLite y estado compartido por sesion.
-- Persistencia SQLite con repositorios para usuarios y sesiones.
-- Generadores de archivos: Excel del mesociclo (programa, esquema semanal y notas), PDF del plan nutricional y PDF del informe de progreso con grafica de peso.
-- Generacion cableada en el grafo (los nodos producen los archivos) y comandos CLI para regenerarlos sin re-ejecutar agentes.
-- Prompts especificos por agente con contexto RAG.
-- Suite de tests para agentes, base de datos, grafo y generadores.
+1. **Entrevista al usuario** — cuestionario conversacional adaptativo (objetivos, disponibilidad, equipamiento, historial)
+2. **Analiza fotos corporales** — estimación visual de % graso, puntos débiles/fuertes y notas posturales
+3. **Diseña el mesociclo** — programa de entrenamiento en Excel organizado por microciclos semanales
+4. **Genera el plan nutricional** — PDF con macros, distribución calórica y estrategia de nutrición
+5. **Hace seguimiento bisemanal** — check-in con fotos y pesos, informe de progreso en PDF con gráfica
 
-En desarrollo:
+Todo orquestado por un grafo LangGraph con estado persistido en SQLite, accesible por CLI o bot de Telegram.
 
-- Interfaz para usuarios no tecnicos (bot de Telegram o web app).
-- Herramientas de agente (`src/tools/`) aun sin implementar.
-- Fuentes cientificas adicionales y citas normalizadas.
+---
 
-## Demo Rapida
+## Capturas
 
-```bash
-uv sync --extra dev
-cp .env.example .env
+<table>
+<tr>
+<td align="center" width="50%">
 
-# Base de conocimiento
-uv run fitness-kb list
-uv run fitness-kb index-all
-uv run fitness-kb search "como entrenar pectoral para hipertrofia" --agent training -k 3
+**Onboarding conversacional**
 
-# Sistema de agentes
-uv run fitness start --user-id usuario1
-uv run fitness checkin --user-id usuario1
-uv run fitness status --user-id usuario1
+<img src="docs/screenshots/bot_onboarding.png" alt="Bot onboarding" width="320"/>
 
-# Regenerar archivos sin re-ejecutar agentes
-uv run fitness export-mesocycle --user-id usuario1
-uv run fitness export-nutrition --user-id usuario1
-uv run fitness export-progress --user-id usuario1
+*El agente de intake entrevista al usuario una pregunta a la vez*
+
+</td>
+<td align="center" width="50%">
+
+**Panel de estado y archivos**
+
+<img src="docs/screenshots/bot_status.png" alt="Bot status" width="320"/>
+
+*`/status` muestra el mesociclo activo, archivos generados y acciones rápidas*
+
+</td>
+</tr>
+</table>
+
+---
+
+## Arquitectura
+
+```
+Usuario (Telegram / CLI)
+        │
+        ▼
+┌───────────────────────────────────────────────────────┐
+│                   LangGraph Workflow                   │
+│                                                       │
+│  intake → assessment → training → nutrition           │
+│                              ↓                        │
+│                        schedule_checkin               │
+│                              ↓                        │
+│   checkin → progress ──────────────────────────────   │
+│                ↓ new_mesocycle / adjust               │
+│           training / nutrition                        │
+└───────────────────────────────────────────────────────┘
+        │                           │
+        ▼                           ▼
+  SQLite (estado)          output/
+  fitness.sqlite           ├── Mesociclo_*.xlsx
+  state.sqlite             ├── Plan_Nutricional_*.pdf
+                           └── Informe_Progreso_*.pdf
+        │
+        ▼
+  ChromaDB (RAG)
+  Base de conocimiento fitness en español
 ```
 
-Hay una guia mas completa en [docs/DEMO.md](docs/DEMO.md). English version: [docs/DEMO.en.md](docs/DEMO.en.md).
+Cada agente usa **Claude Opus 4.7** con adaptive thinking y accede a la base RAG antes de generar su output estructurado (Pydantic). El bot de Telegram es una capa de presentación pura — llama al mismo grafo que usa el CLI.
 
-## Casos De Uso
+---
 
-- Construir un entrenador personal con agentes de IA.
-- Crear una base de conocimiento fitness consultable por RAG.
-- Generar estructuras validadas para planes de entrenamiento y nutricion.
-- Experimentar con modelos Pydantic para productos fitness.
-- Analizar contenido de divulgadores y convertirlo en fuentes indexables.
+## Características
 
-## Stack
+| Área | Detalles |
+|------|----------|
+| **Agentes** | Intake conversacional, evaluación corporal visual, diseño de mesociclo, planificación nutricional, análisis de progreso |
+| **RAG** | ChromaDB local, embeddings multilingüe, filtros por tema/autor/fiabilidad, ingesta desde YouTube |
+| **Outputs** | Excel mesociclo (programa + microciclos), PDF nutrición, PDF progreso con gráfica de peso |
+| **Persistencia** | SQLite para perfil, evaluaciones, mesociclos, planes y logs de progreso |
+| **Orquestación** | LangGraph con checkpoints SQLite, estado por usuario, routing condicional |
+| **Interfaces** | CLI (`fitness`) + bot de Telegram con whitelist y admin |
+| **Calidad** | Pydantic v2, structured outputs con reintentos, ruff, pytest |
 
-- Python 3.12+
-- uv
-- ChromaDB
-- sentence-transformers
-- Pydantic v2
-- Typer + Rich
-- yt-dlp
-- faster-whisper
-- pytest + ruff
-- LangGraph y Claude API para la fase de agentes
+---
 
-## Instalacion
+## Demo rápida
 
 ```bash
+# Instalación
 curl -LsSf https://astral.sh/uv/install.sh | sh
 uv sync --extra dev
+cp .env.example .env  # añade ANTHROPIC_API_KEY
 
-cp .env.example .env
-```
-
-Edita `.env` si vas a usar proveedores externos:
-
-```bash
-ANTHROPIC_API_KEY=...
-```
-
-## CLI
-
-```bash
-uv run fitness-kb list
-uv run fitness-kb stats
+# Base de conocimiento
 uv run fitness-kb index-all
-uv run fitness-kb index <source_id>
-uv run fitness-kb search "<query>"
-uv run fitness-kb search "<query>" --agent training -k 5
-uv run fitness-kb ingest-video <url> --topics hypertrophy,biomechanics
-uv run fitness-kb list-profile <profile_url> --output videos.txt
-uv run fitness-kb ingest-from-list videos.txt --topics hypertrophy
-uv run fitness-kb sync-registry --dry-run
+uv run fitness-kb search "periodización de volumen para hipertrofia" --agent training -k 3
+
+# Flujo completo
+uv run fitness start --user-id yo
+uv run fitness status --user-id yo
+uv run fitness checkin --user-id yo
+
+# Regenerar archivos sin re-ejecutar agentes
+uv run fitness export-mesocycle --user-id yo
+uv run fitness export-nutrition --user-id yo
+uv run fitness export-progress --user-id yo
+
+# Bot de Telegram
+uv run fitness telegram
 ```
+
+---
 
 ## Bot de Telegram
 
-Además del CLI, el sistema expone una interfaz conversacional por bot de Telegram.
+El bot expone todo el sistema vía Telegram con autenticación por whitelist de chat IDs.
 
-### Setup
+### Setup en 4 pasos
 
-1. Crea un bot con [@BotFather](https://t.me/botfather) y copia el token.
-2. Obtén los chat IDs de los usuarios autorizados (cada uno envía un mensaje a [@userinfobot](https://t.me/userinfobot)).
+1. Crea un bot con [@BotFather](https://t.me/botfather) y copia el token
+2. Obtén tu chat ID con [@userinfobot](https://t.me/userinfobot)
 3. Añade a `.env`:
+   ```env
+   TELEGRAM_BOT_TOKEN=tu_token
+   TELEGRAM_ALLOWED_CHAT_IDS=123456789
+   TELEGRAM_ADMIN_CHAT_ID=123456789
    ```
-   TELEGRAM_BOT_TOKEN=tu_token_aqui
-   TELEGRAM_ALLOWED_CHAT_IDS=chat_id_1,chat_id_2,chat_id_3
-   TELEGRAM_ADMIN_CHAT_ID=tu_chat_id
-   ```
-4. Arranca el bot:
+4. Arranca:
    ```bash
    uv run fitness telegram
    ```
 
-### Comandos disponibles
+### Comandos
 
 | Comando | Descripción |
 |---------|-------------|
-| `/start` | Inicia el cuestionario de onboarding o muestra el estado actual |
-| `/checkin` | Inicia el check-in bisemanal guiado |
-| `/status` | Muestra mesociclo activo, próximo check-in y archivos generados |
-| `/export` | Reenvía archivos generados (mesociclo Excel, dieta PDF, informe PDF) |
-| `/help` | Muestra la ayuda con todos los comandos |
+| `/start` | Onboarding completo o regenera el plan si ya tienes perfil |
+| `/checkin` | Check-in bisemanal guiado con fotos y pesos |
+| `/status` | Mesociclo activo, próximo check-in y archivos generados |
+| `/export` | Reenvía los archivos generados (Excel + PDFs) |
+| `/help` | Ayuda con todos los comandos |
 
-### Arquitectura
+---
 
-El bot es una capa de presentación pura. No duplica lógica de agentes: llama al mismo workflow LangGraph que usa el CLI y traduce el estado a mensajes de Telegram. Cada usuario autorizado tiene su propio estado aislado (thread_id = user_id en el checkpointer SQLite).
+## Instalación
 
-## Estructura
+### Requisitos
 
-```text
-cli/                    Interfaz de terminal fitness-kb
-data/                   Datos estructurados auxiliares
-docs/                   Demos y documentacion de producto
-scripts/                Scripts operativos de ingesta/clasificacion
-src/config/             Configuracion del proyecto
-src/knowledge/          RAG, fuentes, registry, indexacion y recuperacion
-src/models/             Modelos Pydantic del dominio fitness
-src/agents/             Agentes especializados (intake, assessment, training, nutrition, progress)
-src/generators/         Generadores XLSX/PDF (mesociclo, nutricion, progreso)
-src/graph/              Orquestacion LangGraph con checkpoints SQLite
-src/db/                 Persistencia SQLite (conexion y repositorios)
-tests/                  Suite de tests
+- Python 3.12+
+- [uv](https://docs.astral.sh/uv/)
+- Clave API de Anthropic
+
+### Pasos
+
+```bash
+git clone https://github.com/luissauco/fitness-agents.git
+cd fitness-agents
+
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv sync --extra dev
+
+cp .env.example .env
+# edita .env con tu ANTHROPIC_API_KEY
 ```
+
+### Variables de entorno
+
+```env
+# Obligatorio
+ANTHROPIC_API_KEY=sk-ant-...
+
+# ChromaDB
+CHROMA_PERSIST_DIR=./src/knowledge/data/chroma_db
+COLLECTION_NAME=fitness_knowledge
+
+# Embeddings
+EMBEDDING_MODEL=intfloat/multilingual-e5-small
+
+# Telegram (opcional)
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_ALLOWED_CHAT_IDS=
+TELEGRAM_ADMIN_CHAT_ID=
+```
+
+---
+
+## Estructura del proyecto
+
+```
+fitness-agents/
+├── cli/                    # CLI fitness-kb y fitness
+├── src/
+│   ├── agents/             # Agentes especializados
+│   │   ├── claude_client.py    # Wrapper async Claude API
+│   │   ├── intake.py           # Entrevista conversacional
+│   │   ├── assessment.py       # Evaluación corporal visual
+│   │   ├── training.py         # Diseño de mesociclo
+│   │   ├── nutrition.py        # Plan nutricional
+│   │   └── progress.py         # Análisis de progreso
+│   ├── graph/              # Orquestación LangGraph
+│   │   ├── workflow.py         # Grafo de estados
+│   │   ├── state.py            # FitnessState
+│   │   └── checkpoints.py     # Persistencia SQLite
+│   ├── knowledge/          # Base RAG
+│   │   ├── retriever.py        # Búsqueda semántica
+│   │   ├── indexer.py          # Indexación ChromaDB
+│   │   └── sources/            # Registry de fuentes
+│   ├── generators/         # Generadores de archivos
+│   │   ├── excel_mesocycle.py  # Excel con openpyxl
+│   │   ├── pdf_nutrition.py    # PDF con reportlab
+│   │   └── pdf_progress.py     # PDF con gráfica matplotlib
+│   ├── models/             # Modelos Pydantic del dominio
+│   ├── db/                 # Repositorios SQLite
+│   ├── config/             # Settings (pydantic-settings)
+│   └── telegram_bot/       # Bot de Telegram
+│       ├── handlers/           # Comandos y callbacks
+│       ├── services/           # WorkflowRunner, UserMapping, Scheduler
+│       └── messages/           # Textos de respuesta
+└── tests/                  # Suite pytest
+```
+
+---
+
+## Stack técnico
+
+| Capa | Tecnología |
+|------|-----------|
+| LLM | Claude Opus 4.7 (Anthropic) |
+| Orquestación | LangGraph 0.2 con checkpointer SQLite |
+| RAG | ChromaDB + sentence-transformers (multilingual-e5-small) |
+| Validación | Pydantic v2 |
+| Bot | python-telegram-bot 21 |
+| Excel | openpyxl |
+| PDF | reportlab + matplotlib |
+| CLI | Typer + Rich |
+| Ingesta | yt-dlp + faster-whisper |
+| Tests | pytest + ruff |
+| Gestión de deps | uv |
+
+---
 
 ## Calidad
 
 ```bash
 uv run ruff check .
+uv run ruff format .
 uv run pytest
 ```
 
-La suite cubre chunking, indexacion, recuperacion, sincronizacion del registry, modelos fitness, validadores, agentes, base de datos y grafo.
+La suite cubre chunking, indexación, recuperación, sincronización del registry, modelos del dominio, agentes, persistencia y grafo LangGraph.
+
+---
 
 ## Roadmap
 
-El plan publico esta en [ROADMAP.md](ROADMAP.md). English version: [ROADMAP.en.md](ROADMAP.en.md). Las contribuciones mas utiles ahora mismo son:
+Ver [ROADMAP.md](ROADMAP.md) para el plan completo. Las contribuciones más útiles ahora mismo:
 
-- Mejorar ejemplos de uso.
-- Anadir fuentes cientificas con metadata limpia.
-- Crear casos de prueba para agentes.
-- Construir la interfaz para usuarios no tecnicos (bot de Telegram o web app).
-- Preparar una demo web o notebook reproducible.
+- Añadir fuentes científicas con metadata limpia
+- Crear casos de prueba para los agentes con mocks del LLM
+- Mejorar los prompts de los agentes con más contexto RAG
+- Interfaz web (alternativa al bot de Telegram)
 
 ## Contribuir
 
-Lee [CONTRIBUTING.md](CONTRIBUTING.md) para configurar el entorno, ejecutar checks y proponer cambios. English version: [CONTRIBUTING.en.md](CONTRIBUTING.en.md). Las issues pequenas con etiqueta `good first issue` son especialmente bienvenidas.
+Lee [CONTRIBUTING.md](CONTRIBUTING.md) para configurar el entorno, ejecutar checks y proponer cambios.
 
-## Topics Sugeridos En GitHub
-
-`fitness`, `ai-agents`, `rag`, `langchain`, `pydantic`, `nutrition`, `workout-planner`, `personal-trainer`, `spanish`, `knowledge-base`
+---
 
 ## Licencia
 
-MIT. Ver [LICENSE](LICENSE).
+MIT — ver [LICENSE](LICENSE).
+
+---
+
+<div align="center">
+
+Construido con [Claude](https://anthropic.com) · [LangGraph](https://langchain-ai.github.io/langgraph) · [ChromaDB](https://trychroma.com)
+
+</div>
