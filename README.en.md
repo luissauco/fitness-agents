@@ -37,11 +37,34 @@ Everything orchestrated by a LangGraph graph with state persisted in SQLite, acc
 
 ## Screenshots
 
+<table>
+<tr>
+<td align="center" width="50%">
+
+**Telegram bot — full flow**
+
+<img src="docs/screenshots/bot_demo.png" alt="Bot demo" width="340"/>
+
+*Onboarding → generated files → available commands*
+
+</td>
+<td align="center" width="50%">
+
+**Generated nutrition plan PDF**
+
+<img src="docs/screenshots/pdf_nutrition.png" alt="Nutrition PDF" width="340"/>
+
+*2101 kcal · 148g protein · 231g carbs · 65g fat*
+
+</td>
+</tr>
+</table>
+
 <div align="center">
 
-<img src="docs/screenshots/bot_demo.png" alt="fitness-agents bot demo" width="580"/>
+<img src="docs/screenshots/bot_outputs.png" alt="Generated files" width="580"/>
 
-*Full flow: onboarding → Excel mesocycle + nutrition plan PDF generated → command help*
+*The bot delivers the mesocycle Excel and nutrition PDF directly in Telegram*
 
 </div>
 

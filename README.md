@@ -37,11 +37,34 @@ Todo orquestado por un grafo LangGraph con estado persistido en SQLite, accesibl
 
 ## Capturas
 
+<table>
+<tr>
+<td align="center" width="50%">
+
+**Bot de Telegram — flujo completo**
+
+<img src="docs/screenshots/bot_demo.png" alt="Bot demo" width="340"/>
+
+*Onboarding → archivos generados → comandos disponibles*
+
+</td>
+<td align="center" width="50%">
+
+**Plan nutricional PDF generado**
+
+<img src="docs/screenshots/pdf_nutrition.png" alt="PDF nutrición" width="340"/>
+
+*2101 kcal · 148g proteína · 231g HC · 65g grasa*
+
+</td>
+</tr>
+</table>
+
 <div align="center">
 
-<img src="docs/screenshots/bot_demo.png" alt="fitness-agents bot demo" width="580"/>
+<img src="docs/screenshots/bot_outputs.png" alt="Archivos generados" width="580"/>
 
-*Flujo completo: onboarding → mesociclo Excel + plan nutricional PDF generados → ayuda de comandos*
+*El bot entrega el Excel del mesociclo y el PDF de nutrición directamente en Telegram*
 
 </div>
 
