@@ -37,28 +37,13 @@ Todo orquestado por un grafo LangGraph con estado persistido en SQLite, accesibl
 
 ## Capturas
 
-<table>
-<tr>
-<td align="center" width="50%">
+<div align="center">
 
-**Onboarding conversacional**
+<img src="docs/screenshots/bot_demo.png" alt="fitness-agents bot demo" width="580"/>
 
-<img src="docs/screenshots/bot_onboarding.png" alt="Bot onboarding" width="320"/>
+*Flujo completo: onboarding → mesociclo Excel + plan nutricional PDF generados → ayuda de comandos*
 
-*El agente de intake entrevista al usuario una pregunta a la vez*
-
-</td>
-<td align="center" width="50%">
-
-**Panel de estado y archivos**
-
-<img src="docs/screenshots/bot_status.png" alt="Bot status" width="320"/>
-
-*`/status` muestra el mesociclo activo, archivos generados y acciones rápidas*
-
-</td>
-</tr>
-</table>
+</div>
 
 ---
 

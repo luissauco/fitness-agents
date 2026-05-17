@@ -37,28 +37,13 @@ Everything orchestrated by a LangGraph graph with state persisted in SQLite, acc
 
 ## Screenshots
 
-<table>
-<tr>
-<td align="center" width="50%">
+<div align="center">
 
-**Conversational onboarding**
+<img src="docs/screenshots/bot_demo.png" alt="fitness-agents bot demo" width="580"/>
 
-<img src="docs/screenshots/bot_onboarding.png" alt="Bot onboarding" width="320"/>
+*Full flow: onboarding → Excel mesocycle + nutrition plan PDF generated → command help*
 
-*The intake agent interviews the user one question at a time*
-
-</td>
-<td align="center" width="50%">
-
-**Status panel and files**
-
-<img src="docs/screenshots/bot_status.png" alt="Bot status" width="320"/>
-
-*`/status` shows the active mesocycle, generated files and quick actions*
-
-</td>
-</tr>
-</table>
+</div>
 
 ---
 

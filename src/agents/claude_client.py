@@ -162,7 +162,11 @@ class ClaudeClient:
                 temperature=temperature,
                 tools=[tool],
                 # tool_choice forzado es incompatible con extended thinking.
-                tool_choice={"type": "auto"} if thinking else {"type": "tool", "name": _STRUCTURED_TOOL},
+                tool_choice=(
+                    {"type": "auto"}
+                    if thinking
+                    else {"type": "tool", "name": _STRUCTURED_TOOL}
+                ),
                 thinking=thinking,
             )
 
