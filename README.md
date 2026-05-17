@@ -62,9 +62,9 @@ Todo orquestado por un grafo LangGraph con estado persistido en SQLite, accesibl
 
 <div align="center">
 
-<img src="docs/screenshots/bot_outputs.png" alt="Archivos generados" width="580"/>
+<img src="docs/screenshots/excel_mesocycle.png" alt="Excel mesociclo" width="700"/>
 
-*El bot entrega el Excel del mesociclo y el PDF de nutrición directamente en Telegram*
+*Mesociclo Upper/Lower 5 semanas con ejercicios, sets×reps(RIR), notas de técnica y progresión por microciclo*
 
 </div>
 

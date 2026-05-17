@@ -62,9 +62,9 @@ Everything orchestrated by a LangGraph graph with state persisted in SQLite, acc
 
 <div align="center">
 
-<img src="docs/screenshots/bot_outputs.png" alt="Generated files" width="580"/>
+<img src="docs/screenshots/excel_mesocycle.png" alt="Excel mesocycle" width="700"/>
 
-*The bot delivers the mesocycle Excel and nutrition PDF directly in Telegram*
+*Upper/Lower 5-week mesocycle with exercises, sets×reps(RIR), technique notes and per-microcycle progression*
 
 </div>
 
