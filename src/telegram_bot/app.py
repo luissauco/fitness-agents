@@ -5,6 +5,8 @@ from __future__ import annotations
 import logging
 from typing import Final
 
+import aiosqlite
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from telegram import Update
 from telegram.ext import (
     Application,
@@ -18,6 +20,8 @@ from telegram.ext import (
 
 from cli.commands.factory import build_container
 from src.config.settings import get_settings
+from src.graph.checkpoints import get_state_db_path
+from src.graph.workflow import build_workflow
 from src.telegram_bot.handlers import checkin, checkin_flow, export, intake_flow, start, status
 from src.telegram_bot.handlers import help as help_cmd
 from src.telegram_bot.handlers.fallback import unknown_message
@@ -31,6 +35,15 @@ async def post_init(application: Application) -> None:
     """Inicializa dependencias compartidas en bot_data tras construir la Application."""
     settings = get_settings()
     container = build_container()
+
+    # Abrir checkpointer SQLite y recompilar el workflow con persistencia.
+    db_path = get_state_db_path()
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    conn: aiosqlite.Connection = await aiosqlite.connect(str(db_path))
+    saver = AsyncSqliteSaver(conn)
+    await saver.setup()
+    container.workflow = build_workflow(container.bundle, checkpointer=saver)
+    application.bot_data["_checkpointer_conn"] = conn
 
     application.bot_data["settings"] = settings
     application.bot_data["container"] = container
@@ -49,11 +62,24 @@ async def post_init(application: Application) -> None:
     )
 
 
+async def post_shutdown(application: Application) -> None:
+    """Cierra la conexión del checkpointer SQLite al detener el bot."""
+    conn: aiosqlite.Connection | None = application.bot_data.get("_checkpointer_conn")
+    if conn is not None:
+        await conn.close()
+
+
 def build_application() -> Application:
     """Construye la Application con todos los handlers registrados."""
     settings = get_settings()
 
-    app = ApplicationBuilder().token(settings.telegram_bot_token).post_init(post_init).build()
+    app = (
+        ApplicationBuilder()
+        .token(settings.TELEGRAM_BOT_TOKEN)
+        .post_init(post_init)
+        .post_shutdown(post_shutdown)
+        .build()
+    )
 
     # --- Comandos ---
     app.add_handler(CommandHandler("start", start.start_command))
@@ -104,7 +130,7 @@ async def _global_error_handler(update: object, context: ContextTypes.DEFAULT_TY
     if settings is None:
         return
 
-    admin_chat_id_str: str = settings.telegram_admin_chat_id
+    admin_chat_id_str: str = settings.TELEGRAM_ADMIN_CHAT_ID
     if not admin_chat_id_str:
         return
 

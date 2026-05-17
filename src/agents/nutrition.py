@@ -299,7 +299,6 @@ class NutritionAgent(BaseAgent):
             max_tokens=8192,
             temperature=0.5,
             thinking=True,
-            thinking_budget_tokens=3000,
         )
         if diet.day_type != day_type:
             _logger.warning(

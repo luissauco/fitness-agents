@@ -253,7 +253,6 @@ class TrainingAgent(BaseAgent):
             response_model=_MesocycleStructure,
             max_tokens=8192,
             thinking=True,
-            thinking_budget_tokens=4096,
         )
 
     @staticmethod
@@ -377,7 +376,6 @@ class TrainingAgent(BaseAgent):
             response_model=Microcycle,
             max_tokens=8192,
             thinking=True,
-            thinking_budget_tokens=4096,
         )
 
     @staticmethod

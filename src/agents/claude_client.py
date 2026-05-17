@@ -87,6 +87,14 @@ def _extract_tool_input(message: anthropic.types.Message) -> dict[str, Any] | No
     return None
 
 
+def _extract_tool_use_id(message: anthropic.types.Message) -> str | None:
+    """Devuelve el id del primer bloque `tool_use` de la respuesta, si existe."""
+    for block in message.content:
+        if getattr(block, "type", None) == "tool_use":
+            return getattr(block, "id", None)
+    return None
+
+
 def _extract_text(message: anthropic.types.Message) -> str:
     """Concatena los bloques de texto de la respuesta."""
     parts: list[str] = []
@@ -124,7 +132,6 @@ class ClaudeClient:
         max_tokens: int = 8192,
         temperature: float = 0.7,
         thinking: bool = False,
-        thinking_budget_tokens: int = 5000,
     ) -> T:
         """Genera un output validado contra `response_model` (tool_use forzado).
 
@@ -154,9 +161,9 @@ class ClaudeClient:
                 max_tokens=max_tokens,
                 temperature=temperature,
                 tools=[tool],
-                tool_choice={"type": "tool", "name": _STRUCTURED_TOOL},
+                # tool_choice forzado es incompatible con extended thinking.
+                tool_choice={"type": "auto"} if thinking else {"type": "tool", "name": _STRUCTURED_TOOL},
                 thinking=thinking,
-                thinking_budget_tokens=thinking_budget_tokens,
             )
 
             tool_input: dict[str, Any] | None = _extract_tool_input(response)
@@ -184,8 +191,19 @@ class ClaudeClient:
                     )
 
             # Inyecta el error en el historial para el siguiente intento.
+            # Si el asistente devolvió tool_use, la API exige un tool_result en el
+            # siguiente turno de usuario; de lo contrario, basta con texto plano.
             messages.append({"role": "assistant", "content": response.content})
-            messages.append({"role": "user", "content": last_error})
+            tool_use_id: str | None = _extract_tool_use_id(response)
+            if tool_use_id is not None:
+                messages.append({
+                    "role": "user",
+                    "content": [
+                        {"type": "tool_result", "tool_use_id": tool_use_id, "content": last_error}
+                    ],
+                })
+            else:
+                messages.append({"role": "user", "content": last_error})
 
         raise ClaudeStructuredOutputError(
             f"Tras {self._settings.CLAUDE_MAX_RETRIES} intentos no se obtuvo un "
@@ -254,7 +272,6 @@ class ClaudeClient:
         tools: list[dict[str, Any]] | None = None,
         tool_choice: dict[str, Any] | None = None,
         thinking: bool = False,
-        thinking_budget_tokens: int = 5000,
     ) -> anthropic.types.Message:
         """Llama a `messages.create` con backoff exponencial sobre errores transitorios."""
         kwargs: dict[str, Any] = {
@@ -269,12 +286,10 @@ class ClaudeClient:
         if tool_choice:
             kwargs["tool_choice"] = tool_choice
         if thinking:
-            kwargs["thinking"] = {
-                "type": "enabled",
-                "budget_tokens": thinking_budget_tokens,
-            }
-            # Extended thinking exige temperature=1.
-            kwargs["temperature"] = 1.0
+            kwargs["thinking"] = {"type": "adaptive"}
+            kwargs["output_config"] = {"effort": "high"}
+            # Opus 4.7 no acepta temperature cuando thinking está activo.
+            kwargs.pop("temperature", None)
 
         retrier: AsyncRetrying = AsyncRetrying(
             stop=stop_after_attempt(self._settings.CLAUDE_MAX_RETRIES),

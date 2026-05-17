@@ -55,6 +55,9 @@ src/knowledge/data/chroma_db/
 # Salidas generadas
 output/
 
+# Fotos y datos personales de usuarios
+data/
+
 # Listas de vídeos generadas por `list-profile`
 *_videos.txt
 videos.txt

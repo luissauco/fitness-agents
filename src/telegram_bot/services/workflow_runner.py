@@ -35,6 +35,7 @@ class WorkflowInput:
     user_message: str | None = None
     image_paths: list[Path] = field(default_factory=list)
     checkin_data: CheckinInput | None = None
+    regenerate_plan: bool = False
 
 
 @dataclass
@@ -99,6 +100,19 @@ class WorkflowRunner:
         Si ya hay estado, solo envía el delta con la entrada del usuario.
         """
         is_new_user = not current_values
+
+        if wf_input.regenerate_plan:
+            # Usuario con perfil pero sin mesociclo: reconstruir estado desde BD
+            # y saltar directamente a la fase de planificación.
+            base = dict(initial_state(wf_input.user_id))
+            profile = self._repos.user_profile.get(wf_input.user_id)
+            assessment = self._repos.body_assessment.get_latest(wf_input.user_id)
+            base["user_profile"] = profile
+            base["body_assessment"] = assessment
+            base["current_phase"] = "planning"
+            base["pending_user_input"] = None
+            base["pending_user_images"] = None
+            return base
 
         if is_new_user:
             base: dict[str, Any] = dict(initial_state(wf_input.user_id))

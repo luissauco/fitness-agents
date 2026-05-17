@@ -91,18 +91,18 @@ class Settings(BaseSettings):
     )
 
     # Bot de Telegram
-    telegram_bot_token: str = Field(default="", description="Token del bot de Telegram.")
-    telegram_allowed_chat_ids: str = Field(default="", description="CSV de chat IDs autorizados.")
-    telegram_admin_chat_id: str = Field(
+    TELEGRAM_BOT_TOKEN: str = Field(default="", description="Token del bot de Telegram.")
+    TELEGRAM_ALLOWED_CHAT_IDS: str = Field(default="", description="CSV de chat IDs autorizados.")
+    TELEGRAM_ADMIN_CHAT_ID: str = Field(
         default="", description="Chat ID que recibe errores críticos del bot."
     )
 
     @property
     def allowed_chat_ids(self) -> set[int]:
         """Conjunto de chat IDs autorizados para usar el bot."""
-        if not self.telegram_allowed_chat_ids:
+        if not self.TELEGRAM_ALLOWED_CHAT_IDS:
             return set()
-        return {int(x.strip()) for x in self.telegram_allowed_chat_ids.split(",") if x.strip()}
+        return {int(x.strip()) for x in self.TELEGRAM_ALLOWED_CHAT_IDS.split(",") if x.strip()}
 
     # Rutas derivadas (no se leen del entorno).
     @property

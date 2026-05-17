@@ -33,7 +33,7 @@ class UserMappingService:
             user_id, _ = result
             return user_id
 
-        is_admin = str(chat_id) == self._settings.telegram_admin_chat_id
+        is_admin = str(chat_id) == self._settings.TELEGRAM_ADMIN_CHAT_ID
         user_id = f"tg_{uuid.uuid4().hex[:10]}"
         self._repo.register(chat_id=chat_id, user_id=user_id, is_admin=is_admin)
         _logger.info("nuevo_usuario chat_id=%s user_id=%s", chat_id, user_id)

@@ -65,10 +65,19 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
     profile = container.repos.user_profile.get(user_id)
     if profile:
-        await update.message.reply_text(
-            intake_msgs.welcome_back(profile.personal.name),
-            parse_mode="HTML",
-        )
+        mesocycle = container.repos.mesocycle.get_current(user_id)
+        if mesocycle:
+            await update.message.reply_text(
+                intake_msgs.welcome_back(profile.personal.name),
+                parse_mode="HTML",
+            )
+            return
+        # Perfil existe pero sin mesociclo activo → regenerar plan sin intake.
+        _logger.info("start.regenerate_plan user_id=%s", user_id)
+        runner = WorkflowRunner(container.workflow, container.repos)
+        async with _typing_indicator(update, context):
+            output = await runner.invoke(WorkflowInput(user_id=user_id, regenerate_plan=True))
+        await _send_workflow_output(update, context, output, user_id)
         return
 
     await update.message.reply_text(intake_msgs.onboarding_intro(), parse_mode="HTML")
